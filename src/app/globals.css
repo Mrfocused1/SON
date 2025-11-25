@@ -17,6 +17,7 @@
 /* Base Styles */
 html {
   cursor: none;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
@@ -29,6 +30,8 @@ body {
   background-color: var(--cream);
   color: var(--ink);
   overflow-x: hidden;
+  max-width: 100vw;
+  position: relative;
 }
 
 ::selection {
