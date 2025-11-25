@@ -109,9 +109,16 @@ export default function AdminPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    // TODO: Save to Supabase
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSaving(false);
+    try {
+      // The global save button shows a reminder to use section-specific save buttons
+      // since each section manages its own state independently
+      await new Promise(resolve => setTimeout(resolve, 500));
+      showToast("Use the Save button within each section to save changes", "info");
+    } catch {
+      showToast("Something went wrong", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSectionChange = (section: Section) => {
