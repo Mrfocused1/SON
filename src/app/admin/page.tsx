@@ -230,22 +230,22 @@ function ImageUploader({
       <div className="relative group mb-3">
         <ImagePreview src={currentUrl} alt={label} className="w-full h-32 border border-[var(--ink)]/20 rounded" />
 
-        {/* Overlay with actions */}
-        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded">
+        {/* Overlay with actions - always visible on mobile, hover on desktop */}
+        <div className="absolute inset-0 bg-black/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="px-3 py-2 bg-[var(--tv-red)] text-white text-xs font-display uppercase hover:bg-red-600 transition-colors flex items-center gap-1"
+            className="px-3 py-2 bg-[var(--tv-red)] text-white text-xs font-display uppercase hover:bg-red-600 transition-colors flex items-center gap-1 rounded"
           >
             <Upload className="w-3 h-3" />
-            {isUploading ? "Uploading..." : "Upload"}
+            {isUploading ? "..." : "Upload"}
           </button>
           <button
             onClick={() => {
               setUrlInput(currentUrl);
               setShowUrlInput(true);
             }}
-            className="px-3 py-2 bg-white/20 text-white text-xs font-display uppercase hover:bg-white/30 transition-colors flex items-center gap-1"
+            className="px-3 py-2 bg-white/20 text-white text-xs font-display uppercase hover:bg-white/30 transition-colors flex items-center gap-1 rounded"
           >
             <LinkIcon className="w-3 h-3" />
             URL
@@ -387,11 +387,11 @@ function VideoInput({
           </div>
         )}
 
-        {/* Overlay with action */}
-        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
+        {/* Overlay with action - always visible on mobile, hover on desktop */}
+        <div className="absolute inset-0 bg-black/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-[var(--tv-red)] text-white text-xs font-display uppercase hover:bg-red-600 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-[var(--tv-red)] text-white text-xs font-display uppercase hover:bg-red-600 transition-colors flex items-center gap-2 rounded"
           >
             <Film className="w-4 h-4" />
             Change Video
@@ -1068,8 +1068,8 @@ function MediaLibrary() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {filteredImages.map((img, index) => (
             <div key={index} className="group relative">
-              <ImagePreview src={img.url} alt={img.name} className="w-full h-32 border border-[var(--ink)]/20" />
-              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+              <ImagePreview src={img.url} alt={img.name} className="w-full h-32 border border-[var(--ink)]/20 rounded" />
+              <div className="absolute inset-0 bg-black/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2 rounded text-white">
                 <div>
                   <p className="text-xs font-bold truncate">{img.name}</p>
                   <p className="text-xs text-[var(--tv-red)]">{img.category}</p>
@@ -1077,13 +1077,13 @@ function MediaLibrary() {
                 <div className="flex gap-1">
                   <button
                     onClick={() => navigator.clipboard.writeText(img.url)}
-                    className="flex-1 px-2 py-1 bg-[var(--cream)]/20 text-xs hover:bg-[var(--cream)]/30 transition-colors"
+                    className="flex-1 px-2 py-1 bg-white/20 text-xs hover:bg-white/30 transition-colors rounded"
                   >
                     Copy URL
                   </button>
                   <button
                     onClick={() => setImages(images.filter((_, i) => i !== index))}
-                    className="px-2 py-1 bg-red-500/50 text-xs hover:bg-red-500 transition-colors"
+                    className="px-2 py-1 bg-red-500/50 text-xs hover:bg-red-500 transition-colors rounded"
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
