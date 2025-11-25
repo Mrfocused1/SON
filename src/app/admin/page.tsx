@@ -658,7 +658,7 @@ function HomeEditor() {
             ctaLink: homeContent.hero_cta_link || "/shows",
             backgroundImage: homeContent.hero_background_image || "",
             featuredVideoId: homeContent.featured_video_id || "",
-            featuredVideoThumbnail: "",
+            featuredVideoThumbnail: homeContent.featured_video_thumbnail || "",
           });
           setMarqueeItems(homeContent.marquee_items || []);
           setStudioSection({
@@ -721,6 +721,7 @@ function HomeEditor() {
           hero_cta_link: heroData.ctaLink,
           hero_background_image: heroData.backgroundImage,
           featured_video_id: heroData.featuredVideoId,
+          featured_video_thumbnail: heroData.featuredVideoThumbnail,
           marquee_items: marqueeItems,
           studio_title: studioSection.title,
           studio_title_accent: studioSection.titleAccent,
