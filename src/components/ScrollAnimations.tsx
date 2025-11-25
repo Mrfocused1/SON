@@ -24,26 +24,15 @@ export function ScrollAnimations() {
     // Kill all existing ScrollTriggers on route change
     ScrollTrigger.getAll().forEach(trigger => trigger.kill());
 
-    // On mobile, use simple fade-in animations without ScrollTrigger
+    // On mobile, skip all GSAP animations to prevent scroll issues
     if (isMobile) {
-      const timeout = setTimeout(() => {
-        // Simple animations for mobile - all elements animate in on page load
-        gsap.fromTo(
-          ".animate-fade-up, .animate-fade-in, .animate-slide-left, .animate-slide-right, .animate-scale-up, .animate-pop",
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" }
-        );
-
-        gsap.utils.toArray<HTMLElement>(".animate-stagger").forEach((container) => {
-          gsap.fromTo(
-            container.children,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" }
-          );
-        });
-      }, 100);
-
-      return () => clearTimeout(timeout);
+      // Just make all animated elements visible without any GSAP
+      const elements = document.querySelectorAll('.animate-fade-up, .animate-fade-in, .animate-slide-left, .animate-slide-right, .animate-scale-up, .animate-pop, .animate-stagger, .animate-stagger > *');
+      elements.forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'none';
+      });
+      return;
     }
 
     // Small delay to ensure DOM is ready after preloader or route change
