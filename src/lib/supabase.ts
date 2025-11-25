@@ -1,13 +1,24 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create supabase client only if URL is provided
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const supabase: SupabaseClient<any, "public", any> | null =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
+
+// Check if Supabase is configured
+export const isSupabaseConfigured = (): boolean => {
+  return supabase !== null;
+};
 
 // Helper functions for content management
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getContent(table: string): Promise<any[]> {
+  if (!supabase) throw new Error("Supabase is not configured");
   const { data, error } = await supabase.from(table).select("*");
   if (error) throw error;
   return data || [];
@@ -15,6 +26,7 @@ export async function getContent(table: string): Promise<any[]> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateContent(table: string, id: string, updates: Record<string, any>): Promise<any> {
+  if (!supabase) throw new Error("Supabase is not configured");
   const { data, error } = await supabase
     .from(table)
     .update(updates)
@@ -27,6 +39,7 @@ export async function updateContent(table: string, id: string, updates: Record<s
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createContent(table: string, content: Record<string, any>): Promise<any> {
+  if (!supabase) throw new Error("Supabase is not configured");
   const { data, error } = await supabase
     .from(table)
     .insert(content)
@@ -37,12 +50,15 @@ export async function createContent(table: string, content: Record<string, any>)
 }
 
 export async function deleteContent(table: string, id: string): Promise<void> {
+  if (!supabase) throw new Error("Supabase is not configured");
   const { error } = await supabase.from(table).delete().eq("id", id);
   if (error) throw error;
 }
 
 // Upload image to Supabase Storage
 export async function uploadImage(file: File, bucket: string = "images") {
+  if (!supabase) throw new Error("Supabase is not configured. Please add your Supabase credentials.");
+
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `${fileName}`;
