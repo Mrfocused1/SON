@@ -16,12 +16,12 @@ export function Marquee({ children, speed = 20, className = "" }: MarqueeProps) 
     const marquee = marqueeRef.current;
     if (!marquee) return;
 
-    // Move through 50% of content (2 full sets) before looping seamlessly
-    // Double the duration to maintain the same visual speed
+    // With 2 copies, move -50% to seamlessly loop back to the start
+    // The second copy fills in as the first scrolls out, creating infinite seamless scroll
     gsap.to(marquee, {
       xPercent: -50,
       repeat: -1,
-      duration: speed * 2,
+      duration: speed,
       ease: "linear",
     });
   }, [speed]);
@@ -29,8 +29,6 @@ export function Marquee({ children, speed = 20, className = "" }: MarqueeProps) 
   return (
     <div className="marquee-container">
       <div ref={marqueeRef} className={`flex ${className}`}>
-        {children}
-        {children}
         {children}
         {children}
       </div>
