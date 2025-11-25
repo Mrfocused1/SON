@@ -11,11 +11,12 @@ gsap.registerPlugin(ScrollTrigger);
 export function ScrollAnimations() {
   const { isLoading } = usePreloader();
   const pathname = usePathname();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-  }, []);
+  const [isMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
 
   useEffect(() => {
     // Wait for preloader to finish

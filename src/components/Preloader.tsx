@@ -53,7 +53,7 @@ export function Preloader() {
         duration: 0.8,
         ease: "power4.inOut",
       });
-  }, []);
+  }, [setIsLoading]);
 
   if (!isVisible) return null;
 

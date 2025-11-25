@@ -19,7 +19,6 @@ import {
   Upload,
   X,
   Loader2,
-  Check,
   AlertCircle,
   CheckCircle2,
   XCircle
