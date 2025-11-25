@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Home,
   Film,
@@ -17,9 +17,12 @@ import {
   Eye,
   ChevronRight,
   Upload,
-  X
+  X,
+  Loader2,
+  Check,
+  AlertCircle
 } from "lucide-react";
-import { uploadImage } from "@/lib/supabase";
+import { supabase, uploadImage } from "@/lib/supabase";
 
 type Section = "home" | "media" | "shows" | "join" | "contact" | "navigation" | "footer" | "settings";
 
@@ -516,24 +519,14 @@ function HomeEditor() {
     subtitle: "SON Networks creates binge-worthy internet culture. We turn chaotic ideas into polished, high-octane entertainment.",
     ctaText: "Watch Shows",
     ctaLink: "/shows",
-    backgroundImage: "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg",
+    backgroundImage: "",
     featuredVideoId: "hSiSKAgO3mM",
-    featuredVideoThumbnail: "https://images.pexels.com/photos/8360007/pexels-photo-8360007.jpeg",
+    featuredVideoThumbnail: "",
   });
 
-  const [marqueeItems, setMarqueeItems] = useState([
-    "Digital Production House",
-    "Original Series",
-    "Brand Stories",
-    "Viral Content",
-  ]);
+  const [marqueeItems, setMarqueeItems] = useState<string[]>([]);
 
-  const [capabilities, setCapabilities] = useState([
-    { title: "Create", description: "Bring your wildest ideas to life with us" },
-    { title: "Collaborate", description: "Join forces with our creative network" },
-    { title: "Innovate", description: "Push boundaries and break the internet" },
-    { title: "Launch", description: "Go viral and reach millions together" },
-  ]);
+  const [capabilities, setCapabilities] = useState<Array<{ id?: string; title: string; description: string; icon?: string; order?: number }>>([]);
 
   const [studioSection, setStudioSection] = useState({
     title: "We Don't",
@@ -541,24 +534,173 @@ function HomeEditor() {
     subtitle: "SON Networks is a new breed of production house. We combine cinematic quality with the pacing of internet culture.",
   });
 
-  const [studioImages, setStudioImages] = useState([
-    "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-  ]);
-
-  const [featuredSection, setFeaturedSection] = useState({
-    image: "https://images.pexels.com/photos/2510428/pexels-photo-2510428.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    videoId: "hSiSKAgO3mM",
-    label: "Trending",
-    title: "Behind The Scenes",
-  });
+  const [studioImages, setStudioImages] = useState<Array<{ id?: string; image_url: string; alt?: string; order?: number }>>([]);
 
   const [quoteSection, setQuoteSection] = useState({
     quote: "We don't chase trends.",
     quoteAccent: "We set them.",
   });
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load all home page data from Supabase
+  useEffect(() => {
+    async function loadHomeData() {
+      if (!supabase) {
+        // Fallback data if no Supabase
+        setMarqueeItems(["Digital Production House", "Original Series", "Brand Stories", "Viral Content"]);
+        setCapabilities([
+          { title: "Create", description: "Bring your wildest ideas to life with us" },
+          { title: "Collaborate", description: "Join forces with our creative network" },
+          { title: "Innovate", description: "Push boundaries and break the internet" },
+          { title: "Launch", description: "Go viral and reach millions together" },
+        ]);
+        setStudioImages([
+          { image_url: "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" },
+          { image_url: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Load home_content
+        const { data: homeContent } = await supabase
+          .from("home_content")
+          .select("*")
+          .single();
+
+        if (homeContent) {
+          setHeroData({
+            title: homeContent.hero_title || "Ready",
+            titleAccent: homeContent.hero_title_accent || "To Roll.",
+            subtitle: homeContent.hero_subtitle || "",
+            ctaText: homeContent.hero_cta_text || "Watch Shows",
+            ctaLink: homeContent.hero_cta_link || "/shows",
+            backgroundImage: homeContent.hero_background_image || "",
+            featuredVideoId: homeContent.featured_video_id || "",
+            featuredVideoThumbnail: "",
+          });
+          setMarqueeItems(homeContent.marquee_items || []);
+          setStudioSection({
+            title: homeContent.studio_title || "We Don't",
+            titleAccent: homeContent.studio_title_accent || "Play Safe.",
+            subtitle: homeContent.studio_subtitle || "",
+          });
+          setQuoteSection({
+            quote: homeContent.quote_text || "We don't chase trends.",
+            quoteAccent: homeContent.quote_accent || "We set them.",
+          });
+        }
+
+        // Load capabilities
+        const { data: capsData } = await supabase
+          .from("capabilities")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (capsData) {
+          setCapabilities(capsData);
+        }
+
+        // Load studio images
+        const { data: imagesData } = await supabase
+          .from("studio_images")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (imagesData) {
+          setStudioImages(imagesData);
+        }
+      } catch (error) {
+        console.error("Error loading home data:", error);
+      }
+
+      setLoading(false);
+    }
+    loadHomeData();
+  }, []);
+
+  // Save all home page data to Supabase
+  const saveHomeData = useCallback(async () => {
+    if (!supabase) {
+      alert("Supabase is not configured");
+      return;
+    }
+
+    setSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      // Update home_content
+      const { data: existingHome } = await supabase.from("home_content").select("id").single();
+      if (existingHome) {
+        await supabase.from("home_content").update({
+          hero_title: heroData.title,
+          hero_title_accent: heroData.titleAccent,
+          hero_subtitle: heroData.subtitle,
+          hero_cta_text: heroData.ctaText,
+          hero_cta_link: heroData.ctaLink,
+          hero_background_image: heroData.backgroundImage,
+          featured_video_id: heroData.featuredVideoId,
+          marquee_items: marqueeItems,
+          studio_title: studioSection.title,
+          studio_title_accent: studioSection.titleAccent,
+          studio_subtitle: studioSection.subtitle,
+          quote_text: quoteSection.quote,
+          quote_accent: quoteSection.quoteAccent,
+        }).eq("id", existingHome.id);
+      }
+
+      // Update capabilities - delete and re-insert
+      await supabase.from("capabilities").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const capsWithOrder = capabilities.map((cap, index) => ({
+        title: cap.title,
+        description: cap.description,
+        icon: cap.icon || "Sparkles",
+        order: index + 1,
+      }));
+      if (capsWithOrder.length > 0) {
+        await supabase.from("capabilities").insert(capsWithOrder);
+      }
+
+      // Update studio images - delete and re-insert
+      await supabase.from("studio_images").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const imagesWithOrder = studioImages.map((img, index) => ({
+        image_url: img.image_url,
+        alt: img.alt || `Studio image ${index + 1}`,
+        order: index + 1,
+      }));
+      if (imagesWithOrder.length > 0) {
+        await supabase.from("studio_images").insert(imagesWithOrder);
+      }
+
+      // Reload capabilities and images to get new IDs
+      const { data: newCaps } = await supabase.from("capabilities").select("*").order("order", { ascending: true });
+      if (newCaps) setCapabilities(newCaps);
+
+      const { data: newImages } = await supabase.from("studio_images").select("*").order("order", { ascending: true });
+      if (newImages) setStudioImages(newImages);
+
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving home data:", error);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }, [heroData, marqueeItems, capabilities, studioSection, studioImages, quoteSection]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -660,13 +802,13 @@ function HomeEditor() {
         </h3>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-          {studioImages.map((src, index) => (
+          {studioImages.map((img, index) => (
             <div key={index} className="space-y-2">
               <ImageUploader
-                currentUrl={src}
+                currentUrl={img.image_url}
                 onImageChange={(url) => {
                   const newImages = [...studioImages];
-                  newImages[index] = url;
+                  newImages[index] = { ...newImages[index], image_url: url };
                   setStudioImages(newImages);
                 }}
                 label={`Image ${index + 1}`}
@@ -682,53 +824,12 @@ function HomeEditor() {
           ))}
         </div>
         <button
-          onClick={() => setStudioImages([...studioImages, ""])}
+          onClick={() => setStudioImages([...studioImages, { image_url: "" }])}
           className="flex items-center gap-2 px-4 py-2 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Image
         </button>
-      </section>
-
-      {/* Featured Grid Section */}
-      <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
-          <Film className="w-5 h-5 text-[var(--tv-red)]" />
-          Featured Grid Section
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4">
-          <div>
-            <label className="block font-display uppercase text-sm mb-2">Label Badge</label>
-            <input
-              type="text"
-              value={featuredSection.label}
-              onChange={(e) => setFeaturedSection({ ...featuredSection, label: e.target.value })}
-              className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
-            />
-          </div>
-          <div>
-            <label className="block font-display uppercase text-sm mb-2">Title</label>
-            <input
-              type="text"
-              value={featuredSection.title}
-              onChange={(e) => setFeaturedSection({ ...featuredSection, title: e.target.value })}
-              className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          <VideoInput
-            currentVideoId={featuredSection.videoId}
-            onVideoChange={(videoId) => setFeaturedSection({ ...featuredSection, videoId: videoId })}
-            label="Video (plays on click)"
-          />
-          <ImageUploader
-            currentUrl={featuredSection.image}
-            onImageChange={(url) => setFeaturedSection({ ...featuredSection, image: url })}
-            label="Background Image"
-          />
-        </div>
       </section>
 
       {/* Marquee Section */}
@@ -887,6 +988,26 @@ function HomeEditor() {
           </div>
         </div>
       </section>
+
+      {/* Save Button */}
+      <div className="sticky bottom-4 flex justify-end">
+        <button
+          onClick={saveHomeData}
+          disabled={saving}
+          className="flex items-center gap-2 px-8 py-4 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded-lg shadow-lg disabled:opacity-50"
+        >
+          {saving ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : saveStatus === "success" ? (
+            <Check className="w-5 h-5" />
+          ) : saveStatus === "error" ? (
+            <AlertCircle className="w-5 h-5" />
+          ) : (
+            <Save className="w-5 h-5" />
+          )}
+          {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Home Page"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -1128,16 +1249,117 @@ function MediaLibrary() {
 
 // Shows Editor
 function ShowsEditor() {
-  const [shows, setShows] = useState([
-    { videoId: "hSiSKAgO3mM", thumbnail: "https://images.pexels.com/photos/8981855/pexels-photo-8981855.jpeg", title: "Studio Session", category: "Behind The Scenes" },
-    { videoId: "hSiSKAgO3mM", thumbnail: "https://images.pexels.com/photos/4911179/pexels-photo-4911179.jpeg", title: "Content Creation", category: "Viral Short" },
-    { videoId: "hSiSKAgO3mM", thumbnail: "https://images.pexels.com/photos/7676469/pexels-photo-7676469.jpeg", title: "Creative Process", category: "Documentary" },
-  ]);
-
+  const [shows, setShows] = useState<Array<{ id?: string; video_id: string; thumbnail: string; title: string; category: string; order?: number }>>([]);
   const [pageContent, setPageContent] = useState({
     title: "Our Shows",
     subtitle: "Streaming now on YouTube. Click to watch.",
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load shows from Supabase
+  useEffect(() => {
+    async function loadShows() {
+      if (!supabase) {
+        setShows([
+          { video_id: "hSiSKAgO3mM", thumbnail: "https://images.pexels.com/photos/8981855/pexels-photo-8981855.jpeg", title: "Studio Session", category: "Behind The Scenes" },
+          { video_id: "hSiSKAgO3mM", thumbnail: "https://images.pexels.com/photos/4911179/pexels-photo-4911179.jpeg", title: "Content Creation", category: "Viral Short" },
+          { video_id: "hSiSKAgO3mM", thumbnail: "https://images.pexels.com/photos/7676469/pexels-photo-7676469.jpeg", title: "Creative Process", category: "Documentary" },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      // Load shows
+      const { data: showsData, error: showsError } = await supabase
+        .from("shows")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (showsError) {
+        console.error("Error loading shows:", showsError);
+      } else if (showsData) {
+        setShows(showsData);
+      }
+
+      // Load page content
+      const { data: contentData } = await supabase
+        .from("shows_content")
+        .select("*")
+        .single();
+
+      if (contentData) {
+        setPageContent({
+          title: contentData.title,
+          subtitle: contentData.subtitle,
+        });
+      }
+
+      setLoading(false);
+    }
+    loadShows();
+  }, []);
+
+  // Save shows to Supabase
+  const saveShows = useCallback(async () => {
+    if (!supabase) {
+      alert("Supabase is not configured");
+      return;
+    }
+
+    setSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      // Delete all existing shows
+      await supabase.from("shows").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      // Insert new shows with order
+      const showsWithOrder = shows.map((show, index) => ({
+        video_id: show.video_id,
+        thumbnail: show.thumbnail,
+        title: show.title,
+        category: show.category,
+        order: index + 1,
+      }));
+
+      const { error: showsError } = await supabase.from("shows").insert(showsWithOrder);
+      if (showsError) throw showsError;
+
+      // Update page content
+      const { data: existingContent } = await supabase.from("shows_content").select("id").single();
+      if (existingContent) {
+        await supabase.from("shows_content").update({
+          title: pageContent.title,
+          subtitle: pageContent.subtitle,
+        }).eq("id", existingContent.id);
+      }
+
+      // Reload shows to get new IDs
+      const { data } = await supabase
+        .from("shows")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (data) setShows(data);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving shows:", error);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }, [shows, pageContent]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -1212,10 +1434,10 @@ function ShowsEditor() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <VideoInput
-                  currentVideoId={show.videoId}
-                  onVideoChange={(videoId) => {
+                  currentVideoId={show.video_id}
+                  onVideoChange={(video_id) => {
                     const newShows = [...shows];
-                    newShows[index] = { ...newShows[index], videoId };
+                    newShows[index] = { ...newShows[index], video_id };
                     setShows(newShows);
                   }}
                   label="Video"
@@ -1239,13 +1461,31 @@ function ShowsEditor() {
               </button>
             </div>
           ))}
-          <button
-            onClick={() => setShows([...shows, { videoId: "", thumbnail: "", title: "", category: "" }])}
-            className="flex items-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Video
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setShows([...shows, { video_id: "", thumbnail: "", title: "", category: "" }])}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+            >
+              <Plus className="w-4 h-4" />
+              Add Video
+            </button>
+            <button
+              onClick={saveShows}
+              disabled={saving}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded disabled:opacity-50"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : saveStatus === "success" ? (
+                <Check className="w-4 h-4" />
+              ) : saveStatus === "error" ? (
+                <AlertCircle className="w-4 h-4" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Shows"}
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -1263,11 +1503,120 @@ function JoinEditor() {
     pitchSubtitle: "We want to hear your craziest concepts. Pitch us your show, series, or one-off video idea.",
   });
 
-  const [roles, setRoles] = useState([
-    { title: "Content Creator", type: "Remote", description: "Bring your unique voice and ideas to our network." },
-    { title: "Script Writer", type: "LA / Hybrid", description: "Comedy focused. Must be chronically online." },
-    { title: "On-Screen Talent", type: "Flexible", description: "Camera-ready personalities who can captivate audiences." },
-  ]);
+  const [roles, setRoles] = useState<Array<{ id?: string; title: string; type: string; description: string; order?: number }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load data from Supabase
+  useEffect(() => {
+    async function loadData() {
+      if (!supabase) {
+        setRoles([
+          { title: "Content Creator", type: "Remote", description: "Bring your unique voice and ideas to our network." },
+          { title: "Script Writer", type: "LA / Hybrid", description: "Comedy focused. Must be chronically online." },
+          { title: "On-Screen Talent", type: "Flexible", description: "Camera-ready personalities who can captivate audiences." },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      // Load roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("roles")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (rolesError) {
+        console.error("Error loading roles:", rolesError);
+      } else if (rolesData) {
+        setRoles(rolesData);
+      }
+
+      // Load page content
+      const { data: contentData } = await supabase
+        .from("join_content")
+        .select("*")
+        .single();
+
+      if (contentData) {
+        setPageContent({
+          title: contentData.title,
+          titleAccent: contentData.title_accent,
+          subtitle: contentData.subtitle,
+          pitchTitle: contentData.pitch_title,
+          pitchTitleAccent: contentData.pitch_title_accent,
+          pitchSubtitle: contentData.pitch_subtitle,
+        });
+      }
+
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  // Save to Supabase
+  const saveJoinPage = useCallback(async () => {
+    if (!supabase) {
+      alert("Supabase is not configured");
+      return;
+    }
+
+    setSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      // Delete all existing roles
+      await supabase.from("roles").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      // Insert new roles with order
+      const rolesWithOrder = roles.map((role, index) => ({
+        title: role.title,
+        type: role.type,
+        description: role.description,
+        order: index + 1,
+      }));
+
+      const { error: rolesError } = await supabase.from("roles").insert(rolesWithOrder);
+      if (rolesError) throw rolesError;
+
+      // Update page content
+      const { data: existingContent } = await supabase.from("join_content").select("id").single();
+      if (existingContent) {
+        await supabase.from("join_content").update({
+          title: pageContent.title,
+          title_accent: pageContent.titleAccent,
+          subtitle: pageContent.subtitle,
+          pitch_title: pageContent.pitchTitle,
+          pitch_title_accent: pageContent.pitchTitleAccent,
+          pitch_subtitle: pageContent.pitchSubtitle,
+        }).eq("id", existingContent.id);
+      }
+
+      // Reload roles to get new IDs
+      const { data } = await supabase
+        .from("roles")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (data) setRoles(data);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving join page:", error);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }, [roles, pageContent]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -1372,13 +1721,31 @@ function JoinEditor() {
               </div>
             </div>
           ))}
-          <button
-            onClick={() => setRoles([...roles, { title: "", type: "", description: "" }])}
-            className="flex items-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Role
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setRoles([...roles, { title: "", type: "", description: "" }])}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+            >
+              <Plus className="w-4 h-4" />
+              Add Role
+            </button>
+            <button
+              onClick={saveJoinPage}
+              disabled={saving}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded disabled:opacity-50"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : saveStatus === "success" ? (
+                <Check className="w-4 h-4" />
+              ) : saveStatus === "error" ? (
+                <AlertCircle className="w-4 h-4" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Join Page"}
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -1394,6 +1761,78 @@ function ContactEditor() {
     infoSubtitle: "Whether you're a brand looking to collaborate, a creator wanting to join, or just want to say hi.",
     email: "hello@sonnetworks.com",
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load from Supabase
+  useEffect(() => {
+    async function loadData() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("contact_content")
+        .select("*")
+        .single();
+
+      if (data) {
+        setPageContent({
+          formTitle: data.form_title,
+          infoTitle: data.info_title,
+          infoTitleAccent: data.info_title_accent,
+          infoSubtitle: data.info_subtitle,
+          email: data.contact_email,
+        });
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  // Save to Supabase
+  const saveContact = useCallback(async () => {
+    if (!supabase) {
+      alert("Supabase is not configured");
+      return;
+    }
+
+    setSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      const { data: existingContent } = await supabase.from("contact_content").select("id").single();
+      if (existingContent) {
+        const { error } = await supabase.from("contact_content").update({
+          form_title: pageContent.formTitle,
+          info_title: pageContent.infoTitle,
+          info_title_accent: pageContent.infoTitleAccent,
+          info_subtitle: pageContent.infoSubtitle,
+          contact_email: pageContent.email,
+        }).eq("id", existingContent.id);
+
+        if (error) throw error;
+      }
+
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving contact page:", error);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }, [pageContent]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -1451,6 +1890,24 @@ function ContactEditor() {
               className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
             />
           </div>
+          <div className="col-span-1 md:col-span-2">
+            <button
+              onClick={saveContact}
+              disabled={saving}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded disabled:opacity-50"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : saveStatus === "success" ? (
+                <Check className="w-4 h-4" />
+              ) : saveStatus === "error" ? (
+                <AlertCircle className="w-4 h-4" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Contact Page"}
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -1459,12 +1916,89 @@ function ContactEditor() {
 
 // Navigation Editor
 function NavigationEditor() {
-  const [navItems, setNavItems] = useState([
-    { label: "Home", href: "/" },
-    { label: "Shows", href: "/shows" },
-    { label: "Join Us", href: "/join" },
-    { label: "Contact Us", href: "/contact" },
-  ]);
+  const [navItems, setNavItems] = useState<Array<{ id?: string; label: string; href: string; order?: number }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load navigation items from Supabase
+  useEffect(() => {
+    async function loadNav() {
+      if (!supabase) {
+        setNavItems([
+          { label: "Home", href: "/" },
+          { label: "Shows", href: "/shows" },
+          { label: "Join Us", href: "/join" },
+          { label: "Contact Us", href: "/contact" },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("navigation")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (error) {
+        console.error("Error loading navigation:", error);
+      } else if (data) {
+        setNavItems(data);
+      }
+      setLoading(false);
+    }
+    loadNav();
+  }, []);
+
+  // Save navigation items to Supabase
+  const saveNav = useCallback(async () => {
+    if (!supabase) {
+      alert("Supabase is not configured");
+      return;
+    }
+
+    setSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      // Delete all existing items
+      await supabase.from("navigation").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      // Insert new items with order
+      const itemsWithOrder = navItems.map((item, index) => ({
+        label: item.label,
+        href: item.href,
+        order: index + 1,
+      }));
+
+      const { error } = await supabase.from("navigation").insert(itemsWithOrder);
+
+      if (error) throw error;
+
+      // Reload to get new IDs
+      const { data } = await supabase
+        .from("navigation")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (data) setNavItems(data);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving navigation:", error);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }, [navItems]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -1559,13 +2093,31 @@ function NavigationEditor() {
           ))}
         </div>
 
-        <button
-          onClick={() => setNavItems([...navItems, { label: "", href: "/" }])}
-          className="w-full md:w-auto mt-4 flex items-center justify-center md:justify-start gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
-        >
-          <Plus className="w-4 h-4" />
-          Add Menu Item
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+          <button
+            onClick={() => setNavItems([...navItems, { label: "", href: "/" }])}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+          >
+            <Plus className="w-4 h-4" />
+            Add Menu Item
+          </button>
+          <button
+            onClick={saveNav}
+            disabled={saving}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded disabled:opacity-50"
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : saveStatus === "success" ? (
+              <Check className="w-4 h-4" />
+            ) : saveStatus === "error" ? (
+              <AlertCircle className="w-4 h-4" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Navigation"}
+          </button>
+        </div>
       </section>
     </div>
   );
@@ -1577,11 +2129,89 @@ function FooterEditor() {
     companyName: "SON NETWORKS",
   });
 
-  const [socialLinks, setSocialLinks] = useState([
-    { label: "Instagram", href: "https://instagram.com" },
-    { label: "Twitter", href: "https://twitter.com" },
-    { label: "YouTube", href: "https://www.youtube.com/sonnetworks" },
-  ]);
+  const [socialLinks, setSocialLinks] = useState<Array<{ id?: string; label: string; href: string; order?: number }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load social links from Supabase
+  useEffect(() => {
+    async function loadSocials() {
+      if (!supabase) {
+        setSocialLinks([
+          { label: "Instagram", href: "https://instagram.com" },
+          { label: "Twitter", href: "https://twitter.com" },
+          { label: "YouTube", href: "https://www.youtube.com/sonnetworks" },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("social_links")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (error) {
+        console.error("Error loading social links:", error);
+      } else if (data) {
+        setSocialLinks(data);
+      }
+      setLoading(false);
+    }
+    loadSocials();
+  }, []);
+
+  // Save social links to Supabase
+  const saveSocials = useCallback(async () => {
+    if (!supabase) {
+      alert("Supabase is not configured");
+      return;
+    }
+
+    setSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      // Delete all existing items
+      await supabase.from("social_links").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      // Insert new items with order
+      const itemsWithOrder = socialLinks.map((item, index) => ({
+        label: item.label,
+        href: item.href,
+        icon: item.label, // Use label as icon name
+        order: index + 1,
+      }));
+
+      const { error } = await supabase.from("social_links").insert(itemsWithOrder);
+
+      if (error) throw error;
+
+      // Reload to get new IDs
+      const { data } = await supabase
+        .from("social_links")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (data) setSocialLinks(data);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving social links:", error);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }, [socialLinks]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -1693,13 +2323,31 @@ function FooterEditor() {
           ))}
         </div>
 
-        <button
-          onClick={() => setSocialLinks([...socialLinks, { label: "", href: "" }])}
-          className="w-full md:w-auto mt-4 flex items-center justify-center md:justify-start gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
-        >
-          <Plus className="w-4 h-4" />
-          Add Social Link
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+          <button
+            onClick={() => setSocialLinks([...socialLinks, { label: "", href: "" }])}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+          >
+            <Plus className="w-4 h-4" />
+            Add Social Link
+          </button>
+          <button
+            onClick={saveSocials}
+            disabled={saving}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded disabled:opacity-50"
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : saveStatus === "success" ? (
+              <Check className="w-4 h-4" />
+            ) : saveStatus === "error" ? (
+              <AlertCircle className="w-4 h-4" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Social Links"}
+          </button>
+        </div>
       </section>
     </div>
   );
