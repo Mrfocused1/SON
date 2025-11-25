@@ -43,6 +43,7 @@ export default function Home() {
     heroCtaLink: "/shows",
     heroBackgroundImage: "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
     featuredVideoId: "hSiSKAgO3mM",
+    featuredVideoThumbnail: "",
     marqueeItems: ["Digital Production House", "Original Series", "Brand Stories", "Viral Content"],
     studioTitle: "We Don't",
     studioTitleAccent: "Play Safe.",
@@ -75,6 +76,7 @@ export default function Home() {
             heroCtaLink: homeData.hero_cta_link || "/shows",
             heroBackgroundImage: homeData.hero_background_image || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
             featuredVideoId: homeData.featured_video_id || "hSiSKAgO3mM",
+            featuredVideoThumbnail: homeData.featured_video_thumbnail || "",
             marqueeItems: homeData.marquee_items || ["Digital Production House", "Original Series", "Brand Stories", "Viral Content"],
             studioTitle: homeData.studio_title || "We Don't",
             studioTitleAccent: homeData.studio_title_accent || "Play Safe.",
@@ -168,7 +170,7 @@ export default function Home() {
             data-cursor="play"
           >
             <Image
-              src={`https://img.youtube.com/vi/${homeContent.featuredVideoId}/maxresdefault.jpg`}
+              src={homeContent.featuredVideoThumbnail || `https://img.youtube.com/vi/${homeContent.featuredVideoId}/maxresdefault.jpg`}
               alt="Featured Video"
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
