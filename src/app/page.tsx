@@ -55,7 +55,7 @@ export default function Home() {
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-12">
           {/* Left Title Block */}
-          <div className="col-span-12 md:col-span-8 p-6 md:p-12 flex flex-col justify-center grid-b-border md:border-b-0 md:grid-r-border relative overflow-hidden">
+          <div className="col-span-12 md:col-span-8 p-6 md:p-12 flex flex-col justify-center grid-b-border md:border-b-0 md:grid-r-border relative overflow-hidden min-h-[60vh] md:min-h-0">
             {/* Background Image */}
             <Image
               src="https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
