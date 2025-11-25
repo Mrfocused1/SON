@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Youtube, Instagram, Twitter } from "lucide-react";
+import { Youtube, Instagram, Twitter, Link as LinkIcon } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-const socialLinks = [
+// Icon mapping for social links
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Youtube,
+  Instagram,
+  Twitter,
+  Link: LinkIcon,
+};
+
+// Default fallback social links
+const defaultSocialLinks = [
   {
     href: "https://www.youtube.com/sonnetworks",
     label: "YouTube",
@@ -23,6 +33,15 @@ const socialLinks = [
 ];
 
 export default function ContactPage() {
+  const [socialLinks, setSocialLinks] = useState<Array<{ href: string; label: string; icon: React.ComponentType<{ className?: string }> }>>
+(defaultSocialLinks);
+  const [pageContent, setPageContent] = useState({
+    formTitle: "Hit Us Up",
+    infoTitle: "Let's",
+    infoTitleAccent: "Talk.",
+    infoSubtitle: "Whether you're a brand looking to collaborate, a creator wanting to join, or just want to say hi.",
+    contactEmail: "hello@sonnetworks.com",
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,6 +49,51 @@ export default function ContactPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load contact page content and social links from Supabase
+  useEffect(() => {
+    async function loadContactData() {
+      if (!supabase) return;
+
+      try {
+        // Load contact_content for page titles
+        const { data: contentData } = await supabase
+          .from("contact_content")
+          .select("*")
+          .single();
+
+        if (contentData) {
+          setPageContent({
+            formTitle: contentData.form_title || "Hit Us Up",
+            infoTitle: contentData.info_title || "Let's",
+            infoTitleAccent: contentData.info_title_accent || "Talk.",
+            infoSubtitle: contentData.info_subtitle || "Whether you're a brand looking to collaborate, a creator wanting to join, or just want to say hi.",
+            contactEmail: contentData.contact_email || "hello@sonnetworks.com",
+          });
+        }
+
+        // Load social links ordered by order field
+        const { data: socialData } = await supabase
+          .from("social_links")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (socialData && socialData.length > 0) {
+          setSocialLinks(
+            socialData.map((social) => ({
+              href: social.href,
+              label: social.label,
+              icon: iconMap[social.icon] || LinkIcon,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error loading contact data:", error);
+      }
+    }
+
+    loadContactData();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +127,7 @@ export default function ContactPage() {
       <div className="bg-[var(--tv-red)] min-h-screen text-[var(--ink)] grid grid-cols-1 md:grid-cols-2">
         {/* Contact Form */}
         <div className="p-8 md:p-16 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-center">
-          <h2 className="font-display text-6xl uppercase mb-8 animate-fade-up">Hit Us Up</h2>
+          <h2 className="font-display text-6xl uppercase mb-8 animate-fade-up">{pageContent.formTitle}</h2>
           <form onSubmit={handleSubmit} className="space-y-6 animate-slide-left">
             <div>
               <label className="block font-display text-xl uppercase mb-2">
@@ -129,7 +193,7 @@ export default function ContactPage() {
         <div className="p-8 md:p-16 flex flex-col justify-between bg-[var(--tv-red)] text-[var(--cream)]">
           <div>
             <h2 className="font-display text-6xl uppercase mb-8 mix-blend-difference animate-fade-up">
-              Socials
+              {pageContent.infoTitle}<br />{pageContent.infoTitleAccent}
             </h2>
             <ul className="space-y-4 font-display text-3xl uppercase animate-stagger">
               {socialLinks.map((link) => {

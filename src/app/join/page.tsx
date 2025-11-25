@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-const roles = [
+// Default fallback roles
+const defaultRoles = [
   {
     title: "Content Creator",
     type: "Remote",
@@ -25,6 +27,15 @@ const roles = [
 ];
 
 export default function JoinPage() {
+  const [roles, setRoles] = useState(defaultRoles);
+  const [pageContent, setPageContent] = useState({
+    title: "Join The",
+    titleAccent: "Team.",
+    subtitle: "We are always looking for editors, writers, and talent. If you have the sauce, we have the platform.",
+    pitchTitle: "Got An",
+    pitchTitleAccent: "Idea?",
+    pitchSubtitle: "We want to hear your craziest concepts. Pitch us your show, series, or one-off video idea.",
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -41,6 +52,53 @@ export default function JoinPage() {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [applicationSubmitting, setApplicationSubmitting] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<"idle" | "success" | "error">("idle");
+
+  // Load join page content and roles from Supabase
+  useEffect(() => {
+    async function loadJoinData() {
+      if (!supabase) return;
+
+      try {
+        // Load join_content for page titles
+        const { data: contentData } = await supabase
+          .from("join_content")
+          .select("*")
+          .single();
+
+        if (contentData) {
+          setPageContent({
+            title: contentData.title || "Join The",
+            titleAccent: contentData.title_accent || "Team.",
+            subtitle: contentData.subtitle || "We are always looking for editors, writers, and talent. If you have the sauce, we have the platform.",
+            pitchTitle: contentData.pitch_title || "Got An",
+            pitchTitleAccent: contentData.pitch_title_accent || "Idea?",
+            pitchSubtitle: contentData.pitch_subtitle || "We want to hear your craziest concepts. Pitch us your show, series, or one-off video idea.",
+          });
+        }
+
+        // Load roles ordered by order field
+        const { data: rolesData } = await supabase
+          .from("roles")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (rolesData && rolesData.length > 0) {
+          setRoles(
+            rolesData.map((role, index) => ({
+              title: role.title,
+              type: role.type,
+              typeColor: index % 2 === 0 ? "bg-[var(--tv-red)]" : "bg-[var(--ink)]",
+              description: role.description,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error loading join data:", error);
+      }
+    }
+
+    loadJoinData();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,11 +167,10 @@ export default function JoinPage() {
       {/* Left: Join The Team */}
       <div className="bg-[var(--cream)] p-8 md:p-16 border-b-2 lg:border-b-0 lg:border-r-2 border-[var(--ink)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--ink)] mb-8 animate-fade-up">
-          Join The<br />Team.
+          {pageContent.title}<br />{pageContent.titleAccent}
         </h2>
         <p className="text-xl mb-12 font-medium animate-fade-up">
-          We are always looking for editors, writers, and talent. If you have the
-          sauce, we have the platform.
+          {pageContent.subtitle}
         </p>
 
         <div className="space-y-8 flex-1 animate-stagger">
@@ -141,10 +198,10 @@ export default function JoinPage() {
       {/* Right: Suggest Ideas (Pitch) */}
       <div className="bg-[var(--ink)] p-8 md:p-16 text-[var(--cream)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--tv-red)] mb-8 animate-fade-up">
-          Pitch<br />An Idea.
+          {pageContent.pitchTitle}<br />{pageContent.pitchTitleAccent}
         </h2>
         <p className="text-xl mb-12 text-gray-400 animate-fade-up">
-          Got a show concept? A sketch idea? We read everything. Don&apos;t be boring.
+          {pageContent.pitchSubtitle}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8 animate-slide-right">

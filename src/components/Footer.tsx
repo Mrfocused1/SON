@@ -1,15 +1,46 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-const socialLinks = [
+// Default fallback social links
+const defaultSocialLinks = [
   { href: "https://instagram.com", label: "Instagram" },
   { href: "https://twitter.com", label: "Twitter" },
   { href: "https://www.youtube.com/sonnetworks", label: "YouTube" },
 ];
 
 export function Footer() {
+  const [socialLinks, setSocialLinks] = useState(defaultSocialLinks);
+
+  // Load social links from Supabase
+  useEffect(() => {
+    async function loadSocialLinks() {
+      if (!supabase) return;
+
+      try {
+        const { data: socialData } = await supabase
+          .from("social_links")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (socialData && socialData.length > 0) {
+          setSocialLinks(
+            socialData.map((social) => ({
+              href: social.href,
+              label: social.label,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error loading social links:", error);
+      }
+    }
+
+    loadSocialLinks();
+  }, []);
   return (
     <footer className="bg-[var(--ink)] text-[var(--cream)] py-12 px-6 border-t-2 border-[var(--cream)]/20">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">

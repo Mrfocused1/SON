@@ -1,8 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { VideoCard } from "@/components/VideoCard";
+import { supabase } from "@/lib/supabase";
 
-const videos = [
+// Default fallback data
+const defaultVideos = [
   {
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/8981855/pexels-photo-8981855.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
@@ -21,29 +24,65 @@ const videos = [
     title: "Creative Process",
     category: "Documentary",
   },
-  {
-    videoId: "hSiSKAgO3mM",
-    thumbnail: "https://images.pexels.com/photos/2918590/pexels-photo-2918590.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    title: "Film Making",
-    category: "Production",
-  },
-  {
-    videoId: "hSiSKAgO3mM",
-    thumbnail: "https://images.pexels.com/photos/2608519/pexels-photo-2608519.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    title: "On Location",
-    category: "Adventure",
-  },
 ];
 
 export default function ShowsPage() {
+  const [videos, setVideos] = useState(defaultVideos);
+  const [pageContent, setPageContent] = useState({
+    title: "Our Shows",
+    subtitle: "Streaming now on YouTube. Click to watch.",
+  });
+
+  useEffect(() => {
+    async function loadShowsData() {
+      if (!supabase) return;
+
+      try {
+        // Load shows_content for page titles
+        const { data: contentData } = await supabase
+          .from("shows_content")
+          .select("*")
+          .single();
+
+        if (contentData) {
+          setPageContent({
+            title: contentData.title || "Our Shows",
+            subtitle: contentData.subtitle || "Streaming now on YouTube. Click to watch.",
+          });
+        }
+
+        // Load shows (videos) ordered by order field
+        const { data: showsData } = await supabase
+          .from("shows")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (showsData && showsData.length > 0) {
+          setVideos(
+            showsData.map((show) => ({
+              videoId: show.video_id,
+              thumbnail: show.thumbnail,
+              title: show.title,
+              category: show.category,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error loading shows data:", error);
+      }
+    }
+
+    loadShowsData();
+  }, []);
+
   return (
     <div className="bg-[var(--ink)] min-h-screen text-[var(--cream)] overflow-x-hidden">
       <div className="p-6 md:p-12 border-b-2 border-[var(--cream)]/20">
         <h1 className="font-display text-[10vw] uppercase leading-none text-[var(--tv-red)] animate-fade-up">
-          Our Shows
+          {pageContent.title}
         </h1>
         <p className="font-sans text-xl md:text-2xl mt-4 max-w-2xl animate-fade-up">
-          Streaming now on YouTube. Click to watch.
+          {pageContent.subtitle}
         </p>
       </div>
 

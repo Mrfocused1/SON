@@ -4,9 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
-const navLinks = [
+// Default fallback nav links
+const defaultNavLinks = [
   { href: "/", label: "Home" },
   { href: "/shows", label: "Shows" },
   { href: "/join", label: "Join Us" },
@@ -16,6 +18,34 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [navLinks, setNavLinks] = useState(defaultNavLinks);
+
+  // Load navigation links from Supabase
+  useEffect(() => {
+    async function loadNavigation() {
+      if (!supabase) return;
+
+      try {
+        const { data: navData } = await supabase
+          .from("navigation")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (navData && navData.length > 0) {
+          setNavLinks(
+            navData.map((nav) => ({
+              href: nav.href,
+              label: nav.label,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error loading navigation:", error);
+      }
+    }
+
+    loadNavigation();
+  }, []);
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-[var(--cream)] grid-b-border">
