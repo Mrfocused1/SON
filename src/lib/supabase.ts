@@ -1,19 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "@/types/supabase";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Helper functions for content management
-export async function getContent(table: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getContent(table: string): Promise<any[]> {
   const { data, error } = await supabase.from(table).select("*");
   if (error) throw error;
-  return data;
+  return data || [];
 }
 
-export async function updateContent(table: string, id: string, updates: Record<string, unknown>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function updateContent(table: string, id: string, updates: Record<string, any>): Promise<any> {
   const { data, error } = await supabase
     .from(table)
     .update(updates)
@@ -24,7 +25,8 @@ export async function updateContent(table: string, id: string, updates: Record<s
   return data;
 }
 
-export async function createContent(table: string, content: Record<string, unknown>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function createContent(table: string, content: Record<string, any>): Promise<any> {
   const { data, error } = await supabase
     .from(table)
     .insert(content)
@@ -34,7 +36,7 @@ export async function createContent(table: string, content: Record<string, unkno
   return data;
 }
 
-export async function deleteContent(table: string, id: string) {
+export async function deleteContent(table: string, id: string): Promise<void> {
   const { error } = await supabase.from(table).delete().eq("id", id);
   if (error) throw error;
 }
