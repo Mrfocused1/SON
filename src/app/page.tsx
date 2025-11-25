@@ -2,34 +2,29 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Users, Lightbulb, Rocket } from "lucide-react";
 import { useVideoModal } from "@/context/VideoModalContext";
 import { Marquee } from "@/components/Marquee";
+import { supabase } from "@/lib/supabase";
 
-const capabilities = [
-  {
-    title: "Create",
-    description: "Bring your wildest ideas to life with us",
-    icon: Sparkles,
-  },
-  {
-    title: "Collaborate",
-    description: "Join forces with our creative network",
-    icon: Users,
-  },
-  {
-    title: "Innovate",
-    description: "Push boundaries and break the internet",
-    icon: Lightbulb,
-  },
-  {
-    title: "Launch",
-    description: "Go viral and reach millions together",
-    icon: Rocket,
-  },
+// Icon mapping for capabilities
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Sparkles,
+  Users,
+  Lightbulb,
+  Rocket,
+};
+
+// Default fallback data
+const defaultCapabilities = [
+  { title: "Create", description: "Bring your wildest ideas to life with us", icon: "Sparkles" },
+  { title: "Collaborate", description: "Join forces with our creative network", icon: "Users" },
+  { title: "Innovate", description: "Push boundaries and break the internet", icon: "Lightbulb" },
+  { title: "Launch", description: "Go viral and reach millions together", icon: "Rocket" },
 ];
 
-const scrollImages = [
+const defaultScrollImages = [
   "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
   "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
   "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
@@ -39,6 +34,87 @@ const scrollImages = [
 export default function Home() {
   const { openVideo } = useVideoModal();
 
+  // State for dynamic content from Supabase
+  const [homeContent, setHomeContent] = useState({
+    heroTitle: "Ready",
+    heroTitleAccent: "To Roll.",
+    heroSubtitle: "SON Networks creates binge-worthy internet culture. We turn chaotic ideas into polished, high-octane entertainment.",
+    heroCtaText: "Watch Shows",
+    heroCtaLink: "/shows",
+    heroBackgroundImage: "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    featuredVideoId: "hSiSKAgO3mM",
+    marqueeItems: ["Digital Production House", "Original Series", "Brand Stories", "Viral Content"],
+    studioTitle: "We Don't",
+    studioTitleAccent: "Play Safe.",
+    studioSubtitle: "SON Networks is a new breed of production house. We combine cinematic quality with the pacing of internet culture.",
+    quoteText: "We don't chase trends.",
+    quoteAccent: "We set them.",
+  });
+
+  const [capabilities, setCapabilities] = useState(defaultCapabilities);
+  const [scrollImages, setScrollImages] = useState(defaultScrollImages);
+
+  // Load content from Supabase
+  useEffect(() => {
+    async function loadContent() {
+      if (!supabase) return;
+
+      try {
+        // Load home_content
+        const { data: homeData } = await supabase
+          .from("home_content")
+          .select("*")
+          .single();
+
+        if (homeData) {
+          setHomeContent({
+            heroTitle: homeData.hero_title || "Ready",
+            heroTitleAccent: homeData.hero_title_accent || "To Roll.",
+            heroSubtitle: homeData.hero_subtitle || "",
+            heroCtaText: homeData.hero_cta_text || "Watch Shows",
+            heroCtaLink: homeData.hero_cta_link || "/shows",
+            heroBackgroundImage: homeData.hero_background_image || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+            featuredVideoId: homeData.featured_video_id || "hSiSKAgO3mM",
+            marqueeItems: homeData.marquee_items || ["Digital Production House", "Original Series", "Brand Stories", "Viral Content"],
+            studioTitle: homeData.studio_title || "We Don't",
+            studioTitleAccent: homeData.studio_title_accent || "Play Safe.",
+            studioSubtitle: homeData.studio_subtitle || "",
+            quoteText: homeData.quote_text || "We don't chase trends.",
+            quoteAccent: homeData.quote_accent || "We set them.",
+          });
+        }
+
+        // Load capabilities
+        const { data: capsData } = await supabase
+          .from("capabilities")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (capsData && capsData.length > 0) {
+          setCapabilities(capsData.map(cap => ({
+            title: cap.title,
+            description: cap.description,
+            icon: cap.icon || "Sparkles",
+          })));
+        }
+
+        // Load studio images
+        const { data: imagesData } = await supabase
+          .from("studio_images")
+          .select("*")
+          .order("order", { ascending: true });
+
+        if (imagesData && imagesData.length > 0) {
+          setScrollImages(imagesData.map(img => img.image_url));
+        }
+      } catch (error) {
+        console.error("Error loading home content:", error);
+      }
+    }
+
+    loadContent();
+  }, []);
+
   return (
     <div className="overflow-x-hidden">
       {/* HERO */}
@@ -46,10 +122,11 @@ export default function Home() {
         {/* Top Marquee */}
         <div className="grid-b-border py-3 bg-[var(--tv-red)] overflow-hidden">
           <Marquee speed={10} className="whitespace-nowrap font-display text-lg md:text-xl uppercase tracking-widest text-white">
-            <span className="mx-4">Digital Production House</span> •{" "}
-            <span className="mx-4">Original Series</span> •{" "}
-            <span className="mx-4">Brand Stories</span> •{" "}
-            <span className="mx-4">Viral Content</span> •{" "}
+            {homeContent.marqueeItems.map((item, index) => (
+              <span key={index}>
+                <span className="mx-4">{item}</span> •{" "}
+              </span>
+            ))}
           </Marquee>
         </div>
 
@@ -58,29 +135,28 @@ export default function Home() {
           <div className="col-span-12 md:col-span-8 p-6 md:p-12 flex flex-col justify-center grid-b-border md:border-b-0 md:grid-r-border relative overflow-hidden min-h-[60vh] md:min-h-0">
             {/* Background Image */}
             <Image
-              src="https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              alt="Beautiful woman"
+              src={homeContent.heroBackgroundImage || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"}
+              alt="Hero background"
               fill
               className="object-cover"
               priority
             />
 
             <h1 className="font-display mega-text uppercase text-[var(--cream)] z-10 animate-fade-up">
-              Ready<br />
-              <span className="text-[var(--tv-red)]">To Roll.</span>
+              {homeContent.heroTitle}<br />
+              <span className="text-[var(--tv-red)]">{homeContent.heroTitleAccent}</span>
             </h1>
             <p className="font-sans text-xl md:text-2xl mt-8 max-w-lg font-medium leading-relaxed z-10 text-[var(--cream)] animate-fade-up">
-              SON Networks creates binge-worthy internet culture. We turn chaotic
-              ideas into polished, high-octane entertainment.
+              {homeContent.heroSubtitle}
             </p>
 
             {/* CTA */}
             <div className="mt-12 flex gap-6 z-10 animate-pop">
               <Link
-                href="/shows"
+                href={homeContent.heroCtaLink}
                 className="bg-[var(--tv-red)] text-[var(--cream)] px-8 py-4 font-display text-xl uppercase hover:bg-[var(--cream)] hover:text-[var(--ink)] transition-colors border-2 border-[var(--tv-red)]"
               >
-                Watch Shows
+                {homeContent.heroCtaText}
               </Link>
             </div>
           </div>
@@ -88,11 +164,11 @@ export default function Home() {
           {/* Right Reel Block */}
           <div
             className="col-span-12 md:col-span-4 min-h-[400px] md:min-h-0 relative group cursor-pointer overflow-hidden animate-slide-right"
-            onClick={() => openVideo("hSiSKAgO3mM")}
+            onClick={() => openVideo(homeContent.featuredVideoId)}
             data-cursor="play"
           >
             <Image
-              src="https://images.pexels.com/photos/8360007/pexels-photo-8360007.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+              src={`https://img.youtube.com/vi/${homeContent.featuredVideoId}/maxresdefault.jpg`}
               alt="Featured Video"
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
@@ -139,7 +215,7 @@ export default function Home() {
         </div>
         <div className="bg-[var(--ink)] text-[var(--cream)] flex flex-col animate-stagger">
           {capabilities.map((cap, index) => {
-            const Icon = cap.icon;
+            const Icon = iconMap[cap.icon] || Sparkles;
             return (
               <div
                 key={cap.title}
@@ -170,14 +246,13 @@ export default function Home() {
             The Studio
           </span>
           <h2 className="font-display text-[10vw] leading-none uppercase text-[var(--ink)] mb-12 animate-fade-up">
-            We Don&apos;t<br />Play <span className="stroke-text">Safe.</span>
+            {homeContent.studioTitle}<br />{homeContent.studioTitleAccent.split(" ")[0]} <span className="stroke-text">{homeContent.studioTitleAccent.split(" ").slice(1).join(" ") || homeContent.studioTitleAccent}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
             <div className="animate-slide-left">
               <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
-                SON Networks is a new breed of production house. We combine
-                cinematic quality with the pacing of internet culture.
+                {homeContent.studioSubtitle}
               </p>
             </div>
             {/* Scrolling Images */}
@@ -203,7 +278,7 @@ export default function Home() {
       <section className="grid grid-cols-1 md:grid-cols-3 bg-[var(--ink)] grid-b-border">
         <div
           className="col-span-1 md:col-span-2 aspect-video md:aspect-auto min-h-[400px] border-r-2 border-[var(--ink)] bg-[var(--cream)] relative group grid-item overflow-hidden cursor-pointer animate-scale-up"
-          onClick={() => openVideo("hSiSKAgO3mM")}
+          onClick={() => openVideo(homeContent.featuredVideoId)}
           data-cursor="play"
         >
           <div className="image-wrapper w-full h-full">
@@ -241,8 +316,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
         <div className="container mx-auto px-6 relative z-10">
           <h2 className="font-display text-[8vw] leading-[0.85] uppercase animate-fade-up">
-            &ldquo;We don&apos;t chase trends.<br />We{" "}
-            <span className="text-[var(--tv-red)]">set them.</span>&rdquo;
+            &ldquo;{homeContent.quoteText}<br />We{" "}
+            <span className="text-[var(--tv-red)]">{homeContent.quoteAccent}</span>&rdquo;
           </h2>
         </div>
       </section>

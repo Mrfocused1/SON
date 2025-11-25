@@ -990,11 +990,11 @@ function HomeEditor() {
       </section>
 
       {/* Save Button */}
-      <div className="sticky bottom-4 flex justify-end">
+      <div className="sticky bottom-4 flex justify-center md:justify-end">
         <button
           onClick={saveHomeData}
           disabled={saving}
-          className="flex items-center gap-2 px-8 py-4 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm rounded-lg shadow-lg disabled:opacity-50"
+          className="flex items-center gap-3 px-6 md:px-8 py-4 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors font-display uppercase text-sm md:text-base rounded-lg shadow-lg disabled:opacity-50 min-w-[200px] justify-center"
         >
           {saving ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -1005,7 +1005,7 @@ function HomeEditor() {
           ) : (
             <Save className="w-5 h-5" />
           )}
-          {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Home Page"}
+          <span>{saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error!" : "Save Changes"}</span>
         </button>
       </div>
     </div>
