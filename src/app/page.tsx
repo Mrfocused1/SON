@@ -40,7 +40,7 @@ export default function Home() {
   const { openVideo } = useVideoModal();
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       {/* HERO */}
       <section className="min-h-[85vh] flex flex-col">
         {/* Top Marquee */}

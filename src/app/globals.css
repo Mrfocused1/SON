@@ -17,6 +17,7 @@
 /* Base Styles */
 html {
   cursor: none;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
@@ -28,6 +29,22 @@ html {
 body {
   background-color: var(--cream);
   color: var(--ink);
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Prevent horizontal overflow on mobile */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+
+  #__next, main, .page-wrapper {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
 }
 
 ::selection {

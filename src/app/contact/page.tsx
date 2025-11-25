@@ -59,7 +59,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <div className="bg-[var(--tv-red)] min-h-screen text-[var(--ink)] grid grid-cols-1 md:grid-cols-2">
         {/* Contact Form */}
         <div className="p-8 md:p-16 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-center">

@@ -105,7 +105,7 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+    <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen overflow-x-hidden">
       {/* Left: Join The Team */}
       <div className="bg-[var(--cream)] p-8 md:p-16 border-b-2 lg:border-b-0 lg:border-r-2 border-[var(--ink)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--ink)] mb-8 animate-fade-up">

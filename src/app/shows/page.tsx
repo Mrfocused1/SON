@@ -37,7 +37,7 @@ const videos = [
 
 export default function ShowsPage() {
   return (
-    <div className="bg-[var(--ink)] min-h-screen text-[var(--cream)]">
+    <div className="bg-[var(--ink)] min-h-screen text-[var(--cream)] overflow-x-hidden">
       <div className="p-6 md:p-12 border-b-2 border-[var(--cream)]/20">
         <h1 className="font-display text-[10vw] uppercase leading-none text-[var(--tv-red)] animate-fade-up">
           Our Shows

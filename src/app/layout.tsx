@@ -49,7 +49,7 @@ export default function RootLayout({
             <CustomCursor />
             <VideoModal />
             <Navbar />
-            <main className="pt-16 md:pt-20">
+            <main className="pt-16 md:pt-20 overflow-x-hidden">
               {children}
             </main>
             <Footer />
