@@ -1470,13 +1470,61 @@ function NavigationEditor() {
     <div className="space-y-8">
       <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Navigation Editor</h2>
 
-      <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
+      <section className="bg-white border border-[var(--ink)]/10 p-4 md:p-6 rounded-lg shadow-sm">
         <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Menu className="w-5 h-5 text-[var(--tv-red)]" />
           Menu Items
         </h3>
 
-        <div className="space-y-4">
+        {/* Mobile: Card-based layout */}
+        <div className="space-y-3 md:hidden">
+          {navItems.map((item, index) => (
+            <div key={index} className="bg-[var(--cream)]/50 border border-[var(--ink)]/10 rounded-lg p-4">
+              <div className="flex justify-between items-start mb-3">
+                <span className="font-display uppercase text-xs text-[var(--ink)]/50">Menu Item {index + 1}</span>
+                <button
+                  onClick={() => setNavItems(navItems.filter((_, i) => i !== index))}
+                  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-display uppercase text-[var(--ink)]/70 mb-1">Label</label>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => {
+                      const newItems = [...navItems];
+                      newItems[index] = { ...newItems[index], label: e.target.value };
+                      setNavItems(newItems);
+                    }}
+                    placeholder="e.g. Home"
+                    className="w-full bg-white border border-[var(--ink)]/20 px-3 py-2.5 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-display uppercase text-[var(--ink)]/70 mb-1">Link Path</label>
+                  <input
+                    type="text"
+                    value={item.href}
+                    onChange={(e) => {
+                      const newItems = [...navItems];
+                      newItems[index] = { ...newItems[index], href: e.target.value };
+                      setNavItems(newItems);
+                    }}
+                    placeholder="e.g. /about"
+                    className="w-full bg-white border border-[var(--ink)]/20 px-3 py-2.5 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Table-like layout */}
+        <div className="hidden md:block space-y-4">
           {navItems.map((item, index) => (
             <div key={index} className="flex gap-4">
               <input
@@ -1503,20 +1551,21 @@ function NavigationEditor() {
               />
               <button
                 onClick={() => setNavItems(navItems.filter((_, i) => i !== index))}
-                className="px-4 py-3 border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors"
+                className="px-4 py-3 border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors rounded"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
           ))}
-          <button
-            onClick={() => setNavItems([...navItems, { label: "", href: "/" }])}
-            className="flex items-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Menu Item
-          </button>
         </div>
+
+        <button
+          onClick={() => setNavItems([...navItems, { label: "", href: "/" }])}
+          className="w-full md:w-auto mt-4 flex items-center justify-center md:justify-start gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+        >
+          <Plus className="w-4 h-4" />
+          Add Menu Item
+        </button>
       </section>
     </div>
   );
@@ -1538,7 +1587,7 @@ function FooterEditor() {
     <div className="space-y-8">
       <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Footer & Socials Editor</h2>
 
-      <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
+      <section className="bg-white border border-[var(--ink)]/10 p-4 md:p-6 rounded-lg shadow-sm">
         <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Edit3 className="w-5 h-5 text-[var(--tv-red)]" />
           Footer Content
@@ -1550,18 +1599,66 @@ function FooterEditor() {
             type="text"
             value={footerContent.companyName}
             onChange={(e) => setFooterContent({ ...footerContent, companyName: e.target.value })}
-            className="w-full max-w-md bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
+            className="w-full md:max-w-md bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
           />
         </div>
       </section>
 
-      <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
+      <section className="bg-white border border-[var(--ink)]/10 p-4 md:p-6 rounded-lg shadow-sm">
         <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <LinkIcon className="w-5 h-5 text-[var(--tv-red)]" />
           Social Links
         </h3>
 
-        <div className="space-y-4">
+        {/* Mobile: Card-based layout */}
+        <div className="space-y-3 md:hidden">
+          {socialLinks.map((link, index) => (
+            <div key={index} className="bg-[var(--cream)]/50 border border-[var(--ink)]/10 rounded-lg p-4">
+              <div className="flex justify-between items-start mb-3">
+                <span className="font-display uppercase text-xs text-[var(--ink)]/50">Social Link {index + 1}</span>
+                <button
+                  onClick={() => setSocialLinks(socialLinks.filter((_, i) => i !== index))}
+                  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-display uppercase text-[var(--ink)]/70 mb-1">Platform Name</label>
+                  <input
+                    type="text"
+                    value={link.label}
+                    onChange={(e) => {
+                      const newLinks = [...socialLinks];
+                      newLinks[index] = { ...newLinks[index], label: e.target.value };
+                      setSocialLinks(newLinks);
+                    }}
+                    placeholder="e.g. Instagram"
+                    className="w-full bg-white border border-[var(--ink)]/20 px-3 py-2.5 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-display uppercase text-[var(--ink)]/70 mb-1">Profile URL</label>
+                  <input
+                    type="text"
+                    value={link.href}
+                    onChange={(e) => {
+                      const newLinks = [...socialLinks];
+                      newLinks[index] = { ...newLinks[index], href: e.target.value };
+                      setSocialLinks(newLinks);
+                    }}
+                    placeholder="https://instagram.com/..."
+                    className="w-full bg-white border border-[var(--ink)]/20 px-3 py-2.5 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Table-like layout */}
+        <div className="hidden md:block space-y-4">
           {socialLinks.map((link, index) => (
             <div key={index} className="flex gap-4">
               <input
@@ -1588,20 +1685,21 @@ function FooterEditor() {
               />
               <button
                 onClick={() => setSocialLinks(socialLinks.filter((_, i) => i !== index))}
-                className="px-4 py-3 border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors"
+                className="px-4 py-3 border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors rounded"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
           ))}
-          <button
-            onClick={() => setSocialLinks([...socialLinks, { label: "", href: "" }])}
-            className="flex items-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Social Link
-          </button>
         </div>
+
+        <button
+          onClick={() => setSocialLinks([...socialLinks, { label: "", href: "" }])}
+          className="w-full md:w-auto mt-4 flex items-center justify-center md:justify-start gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+        >
+          <Plus className="w-4 h-4" />
+          Add Social Link
+        </button>
       </section>
     </div>
   );
