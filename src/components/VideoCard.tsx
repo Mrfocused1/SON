@@ -26,6 +26,7 @@ export function VideoCard({ videoId, thumbnail, title, category, className = "" 
           alt={title}
           fill
           className="object-cover"
+          unoptimized
         />
       </div>
       <div className="absolute inset-0 bg-[var(--ink)]/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center text-center p-6">
