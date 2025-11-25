@@ -1,65 +1,275 @@
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight, Sparkles, Users, Lightbulb, Rocket } from "lucide-react";
+import { useVideoModal } from "@/context/VideoModalContext";
+import { Marquee } from "@/components/Marquee";
+
+const capabilities = [
+  {
+    title: "Create",
+    description: "Bring your wildest ideas to life with us",
+    icon: Sparkles,
+  },
+  {
+    title: "Collaborate",
+    description: "Join forces with our creative network",
+    icon: Users,
+  },
+  {
+    title: "Innovate",
+    description: "Push boundaries and break the internet",
+    icon: Lightbulb,
+  },
+  {
+    title: "Launch",
+    description: "Go viral and reach millions together",
+    icon: Rocket,
+  },
+];
+
+const scrollImages = [
+  "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+  "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+  "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+  "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+];
 
 export default function Home() {
+  const { openVideo } = useVideoModal();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      {/* HERO */}
+      <section className="min-h-[85vh] flex flex-col">
+        {/* Top Marquee */}
+        <div className="grid-b-border py-3 bg-[var(--tv-red)] overflow-hidden">
+          <Marquee className="whitespace-nowrap font-display text-lg md:text-xl uppercase tracking-widest text-white">
+            <span className="mx-4">Digital Production House</span> •{" "}
+            <span className="mx-4">Original Series</span> •{" "}
+            <span className="mx-4">Brand Stories</span> •{" "}
+            <span className="mx-4">Viral Content</span> •{" "}
+          </Marquee>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-12">
+          {/* Left Title Block */}
+          <div className="col-span-12 md:col-span-8 p-6 md:p-12 flex flex-col justify-center grid-b-border md:border-b-0 md:grid-r-border relative overflow-hidden">
+            {/* Background Image */}
+            <Image
+              src="https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+              alt="Beautiful woman"
+              fill
+              className="object-cover"
+              priority
+            />
+
+            <h1 className="font-display mega-text uppercase text-[var(--cream)] z-10 animate-fade-up">
+              Ready<br />
+              <span className="text-[var(--tv-red)]">To Roll.</span>
+            </h1>
+            <p className="font-sans text-xl md:text-2xl mt-8 max-w-lg font-medium leading-relaxed z-10 text-[var(--cream)] animate-fade-up">
+              SON Networks creates binge-worthy internet culture. We turn chaotic
+              ideas into polished, high-octane entertainment.
+            </p>
+
+            {/* CTA */}
+            <div className="mt-12 flex gap-6 z-10 animate-pop">
+              <Link
+                href="/shows"
+                className="bg-[var(--tv-red)] text-[var(--cream)] px-8 py-4 font-display text-xl uppercase hover:bg-[var(--cream)] hover:text-[var(--ink)] transition-colors border-2 border-[var(--tv-red)]"
+              >
+                Watch Shows
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Reel Block */}
+          <div
+            className="col-span-12 md:col-span-4 min-h-[400px] md:min-h-0 relative group cursor-pointer overflow-hidden animate-slide-right"
+            onClick={() => openVideo("hSiSKAgO3mM")}
+            data-cursor="play"
           >
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="https://images.pexels.com/photos/8360007/pexels-photo-8360007.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+              alt="Featured Video"
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-between p-8 z-10">
+              <div className="flex justify-between items-start text-[var(--cream)]">
+                <span className="font-display text-2xl">FEATURED</span>
+                <ArrowUpRight className="w-8 h-8" />
+              </div>
+              <h2 className="font-display text-6xl text-[var(--cream)] leading-none group-hover:translate-x-2 transition-transform drop-shadow-lg">
+                WATCH<br />NOW
+              </h2>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* CAPABILITIES SECTION */}
+      <section className="grid grid-cols-1 md:grid-cols-2 grid-b-border">
+        <div className="p-12 md:p-24 border-b-2 md:border-b-0 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-between animate-slide-left">
+          <div>
+            <span className="font-bold uppercase tracking-widest text-[var(--tv-red)] mb-4 block animate-fade-up">
+              Capabilities
+            </span>
+            <h2 className="font-display text-6xl uppercase leading-none animate-fade-up">
+              We Build<br />
+              <span className="text-[var(--tv-red)]">Universes.</span>
+            </h2>
+            <p className="text-xl mt-8 font-medium max-w-md animate-fade-up">
+              From 15-second spots to full-length features, we handle every frame
+              with obsessive attention to detail.
+            </p>
+          </div>
+          <div className="mt-12 animate-pop">
+            <Link
+              href="/contact"
+              className="inline-block border-b-2 border-[var(--ink)] text-xl font-display uppercase hover:text-[var(--tv-red)] hover:border-[var(--tv-red)] transition-colors"
+            >
+              Start A Project
+            </Link>
+          </div>
+        </div>
+        <div className="bg-[var(--ink)] text-[var(--cream)] flex flex-col animate-stagger">
+          {capabilities.map((cap, index) => {
+            const Icon = cap.icon;
+            return (
+              <div
+                key={cap.title}
+                className={`p-8 md:p-10 ${
+                  index < capabilities.length - 1 ? "border-b border-gray-800" : ""
+                } hover:bg-zinc-900 transition-colors group cursor-pointer flex justify-between items-center ${
+                  index === capabilities.length - 1 ? "flex-1" : ""
+                }`}
+                data-cursor="view"
+              >
+                <div>
+                  <h3 className="font-display text-3xl uppercase mb-1 group-hover:text-[var(--tv-red)] transition-colors">
+                    {cap.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm">{cap.description}</p>
+                </div>
+                <Icon className="w-8 h-8 text-gray-600 group-hover:text-[var(--tv-red)] transition-colors" />
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* STUDIO / MARQUEE SECTION */}
+      <section className="grid-b-border bg-[var(--cream)] py-24 overflow-hidden relative">
+        <div className="container mx-auto px-6 relative z-10">
+          <span className="font-bold uppercase tracking-widest text-[var(--tv-red)] mb-4 block animate-fade-up">
+            The Studio
+          </span>
+          <h2 className="font-display text-[10vw] leading-none uppercase text-[var(--ink)] mb-12 animate-fade-up">
+            We Don&apos;t<br />Play <span className="stroke-text">Safe.</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+            <div className="animate-slide-left">
+              <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
+                SON Networks is a new breed of production house. We combine
+                cinematic quality with the pacing of internet culture.
+              </p>
+            </div>
+            {/* Scrolling Images */}
+            <div className="relative h-64 overflow-hidden border-2 border-[var(--ink)] bg-white marquee-container flex items-center animate-scale-up">
+              <Marquee speed={15} className="gap-4 px-4">
+                {scrollImages.map((src, index) => (
+                  <Image
+                    key={index}
+                    src={src}
+                    alt={`Studio image ${index + 1}`}
+                    width={192}
+                    height={192}
+                    className="h-48 w-48 object-cover border border-[var(--ink)] grayscale hover:grayscale-0 transition-all"
+                  />
+                ))}
+              </Marquee>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURED GRID TEASER */}
+      <section className="grid grid-cols-1 md:grid-cols-3 bg-[var(--ink)] grid-b-border">
+        <div
+          className="col-span-1 md:col-span-2 aspect-video md:aspect-auto min-h-[400px] border-r-2 border-[var(--ink)] bg-[var(--cream)] relative group grid-item overflow-hidden cursor-pointer animate-scale-up"
+          onClick={() => openVideo("hSiSKAgO3mM")}
+          data-cursor="play"
+        >
+          <div className="image-wrapper w-full h-full">
+            <Image
+              src="https://images.pexels.com/photos/2510428/pexels-photo-2510428.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+              alt="Video Production"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 z-20 pointer-events-none">
+            <span className="bg-[var(--tv-red)] text-white px-3 py-1 font-display text-sm uppercase w-max mb-4 animate-pop">
+              Trending
+            </span>
+            <h3 className="font-display text-5xl md:text-8xl text-[var(--cream)] mix-blend-difference uppercase leading-none animate-fade-up">
+              Behind<br />The Scenes
+            </h3>
+          </div>
+        </div>
+        <Link
+          href="/shows"
+          className="col-span-1 bg-[var(--tv-red)] p-8 md:p-12 flex flex-col justify-center items-center text-center relative overflow-hidden group cursor-pointer min-h-[300px] animate-slide-right"
+        >
+          <h3 className="font-display text-6xl text-[var(--cream)] mb-2 scale-up animate-fade-up">
+            More<br />Shows
+          </h3>
+          <div className="mt-8 border-2 border-[var(--ink)] bg-[var(--cream)] text-[var(--ink)] px-6 py-2 font-display text-lg uppercase transform group-hover:-rotate-3 transition-transform animate-pop">
+            View All
+          </div>
+        </Link>
+      </section>
+
+      {/* PHILOSOPHY / QUOTE */}
+      <section className="py-32 bg-[var(--ink)] text-[var(--cream)] text-center border-b-2 border-[var(--ink)] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+        <div className="container mx-auto px-6 relative z-10">
+          <h2 className="font-display text-[8vw] leading-[0.85] uppercase animate-fade-up">
+            &ldquo;We don&apos;t chase trends.<br />We{" "}
+            <span className="text-[var(--tv-red)]">set them.</span>&rdquo;
+          </h2>
+        </div>
+      </section>
+
+      {/* EXPLORE MORE */}
+      <section className="bg-[var(--cream)]">
+        <div className="grid grid-cols-2 md:grid-cols-4 animate-stagger">
+          {[
+            { title: "Latest Videos", href: "/shows" },
+            { title: "Behind The Scenes", href: "/shows" },
+            { title: "Join The Network", href: "/join" },
+            { title: "Get In Touch", href: "/contact" },
+          ].map((item, index) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className={`aspect-video ${
+                index < 3 ? "border-r-2" : ""
+              } border-b-2 border-[var(--ink)] flex items-center justify-center transition-all p-8 group hover:bg-[var(--ink)]`}
+            >
+              <span className="font-display text-xl md:text-2xl uppercase text-[var(--ink)] group-hover:text-[var(--cream)] text-center transition-colors">
+                {item.title}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

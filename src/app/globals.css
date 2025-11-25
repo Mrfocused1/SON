@@ -1,26 +1,203 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #111111;
+  --cream: #F3F0E6;
+  --tv-red: #FF3333;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-tv-red: var(--tv-red);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-anton);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Base Styles */
+html {
+  cursor: none;
+}
+
+@media (max-width: 768px) {
+  html {
+    cursor: auto;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--tv-red);
+  color: white;
+}
+
+/* Layout Utils */
+.grid-border {
+  border: 2px solid var(--ink);
+}
+
+.grid-r-border {
+  border-right: 2px solid var(--ink);
+}
+
+.grid-b-border {
+  border-bottom: 2px solid var(--ink);
+}
+
+/* Typography */
+.mega-text {
+  font-size: clamp(4rem, 15vw, 20rem);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+}
+
+/* Marquee */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Image Hover Effects */
+.image-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+
+.image-wrapper img {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.grid-item:hover .image-wrapper img {
+  transform: scale(1.05);
+}
+
+/* Custom Cursor */
+.cursor-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--tv-red);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: var(--tv-red);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 14px;
+  opacity: 0;
+  transform: translate(20px, 20px) scale(0);
+  transition: opacity 0.2s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+}
+
+.cursor-label.active {
+  opacity: 1;
+  transform: translate(20px, 20px) scale(1);
+}
+
+/* Preloader */
+.preloader {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  z-index: 10001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.preloader-text {
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: 10vw;
+  line-height: 0.8;
+  overflow: hidden;
+}
+
+.preloader-text span {
+  display: inline-block;
+  transform: translateY(100%);
+}
+
+/* Page Transitions */
+.transition-curtain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  z-index: 9998;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  pointer-events: none;
+}
+
+/* Video Modal */
+.video-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.95);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.video-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Scale Up Animation */
+.scale-up {
+  transition: transform 0.5s ease;
+}
+
+.group:hover .scale-up {
+  transform: scale(1.1);
+}
+
+/* Stroke Text */
+.stroke-text {
+  -webkit-text-stroke: 2px var(--ink);
+  color: transparent;
+}
+
+.stroke-text-light {
+  -webkit-text-stroke: 2px #333;
+  color: transparent;
+}
+
+/* Form floating labels */
+.form-group input:focus ~ label,
+.form-group input:not(:placeholder-shown) ~ label,
+.form-group textarea:focus ~ label,
+.form-group textarea:not(:placeholder-shown) ~ label {
+  top: -1rem;
+  font-size: 0.75rem;
+  color: var(--tv-red);
 }
