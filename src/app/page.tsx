@@ -45,7 +45,7 @@ export default function Home() {
       <section className="min-h-[85vh] flex flex-col">
         {/* Top Marquee */}
         <div className="grid-b-border py-3 bg-[var(--tv-red)] overflow-hidden">
-          <Marquee className="whitespace-nowrap font-display text-lg md:text-xl uppercase tracking-widest text-white">
+          <Marquee speed={8} className="whitespace-nowrap font-display text-lg md:text-xl uppercase tracking-widest text-white">
             <span className="mx-4">Digital Production House</span> •{" "}
             <span className="mx-4">Original Series</span> •{" "}
             <span className="mx-4">Brand Stories</span> •{" "}
@@ -182,7 +182,7 @@ export default function Home() {
             </div>
             {/* Scrolling Images */}
             <div className="relative h-64 overflow-hidden border-2 border-[var(--ink)] bg-white marquee-container flex items-center animate-scale-up">
-              <Marquee speed={15} className="gap-4 px-4">
+              <Marquee speed={6} className="gap-4 px-4">
                 {scrollImages.map((src, index) => (
                   <Image
                     key={index}
@@ -190,7 +190,7 @@ export default function Home() {
                     alt={`Studio image ${index + 1}`}
                     width={192}
                     height={192}
-                    className="h-48 w-48 object-cover border border-[var(--ink)] grayscale hover:grayscale-0 transition-all"
+                    className="h-48 w-48 object-cover border border-[var(--ink)]"
                   />
                 ))}
               </Marquee>
