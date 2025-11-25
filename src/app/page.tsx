@@ -260,7 +260,9 @@ export default function Home() {
               key={item.title}
               href={item.href}
               className={`aspect-video ${
-                index < 3 ? "border-r-2" : ""
+                index % 2 === 0 ? "border-r-2" : ""
+              } ${
+                index < 3 ? "md:border-r-2" : "md:border-r-0"
               } border-b-2 border-[var(--ink)] flex items-center justify-center transition-all p-8 group hover:bg-[var(--ink)]`}
             >
               <span className="font-display text-xl md:text-2xl uppercase text-[var(--ink)] group-hover:text-[var(--cream)] text-center transition-colors">

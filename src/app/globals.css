@@ -35,6 +35,40 @@ body {
   color: white;
 }
 
+/* Mobile CSS animations (no GSAP to avoid scroll issues) */
+@media (max-width: 767px) {
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-slide-left,
+  .animate-slide-right,
+  .animate-scale-up,
+  .animate-pop {
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .animate-stagger > * {
+    animation: fadeInUp 0.6s ease forwards;
+  }
+
+  .animate-stagger > *:nth-child(1) { animation-delay: 0s; }
+  .animate-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 0.2s; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 0.3s; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 0.4s; }
+  .animate-stagger > *:nth-child(6) { animation-delay: 0.5s; }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
 /* Layout Utils */
 .grid-border {
   border: 2px solid var(--ink);
