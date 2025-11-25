@@ -26,6 +26,7 @@ type Section = "home" | "media" | "shows" | "join" | "contact" | "navigation" | 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<Section>("home");
   const [isSaving, setIsSaving] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const sidebarItems = [
     { id: "home" as Section, label: "Home Page", icon: Home },
@@ -45,39 +46,73 @@ export default function AdminPage() {
     setIsSaving(false);
   };
 
+  const handleSectionChange = (section: Section) => {
+    setActiveSection(section);
+    setSidebarOpen(false); // Close sidebar on mobile after selection
+  };
+
   return (
     <div className="min-h-screen bg-[var(--cream)] text-[var(--ink)]">
       {/* Admin Header */}
-      <header className="bg-white border-b-2 border-[var(--ink)]/10 px-6 py-4 flex justify-between items-center shadow-sm">
-        <div className="flex items-center gap-4">
-          <h1 className="font-display text-3xl uppercase">Admin Dashboard</h1>
-          <span className="bg-[var(--tv-red)] text-white px-3 py-1 text-sm font-display uppercase">
+      <header className="bg-white border-b-2 border-[var(--ink)]/10 px-3 md:px-6 py-3 md:py-4 flex justify-between items-center shadow-sm sticky top-0 z-40">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden p-2 hover:bg-[var(--ink)]/5 rounded transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <h1 className="font-display text-lg md:text-3xl uppercase">Admin</h1>
+          <span className="hidden sm:inline bg-[var(--tv-red)] text-white px-2 md:px-3 py-1 text-xs md:text-sm font-display uppercase">
             SON Networks
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <a
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-4 py-2 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
+            className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-2 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-xs md:text-sm rounded"
           >
             <Eye className="w-4 h-4" />
-            View Site
+            <span className="hidden md:inline">View Site</span>
           </a>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 bg-[var(--tv-red)] text-white px-6 py-2 font-display uppercase text-sm hover:bg-red-600 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 md:gap-2 bg-[var(--tv-red)] text-white px-3 md:px-6 py-2 font-display uppercase text-xs md:text-sm hover:bg-red-600 transition-colors disabled:opacity-50 rounded"
           >
             <Save className="w-4 h-4" />
-            {isSaving ? "Saving..." : "Save All"}
+            <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save All"}</span>
           </button>
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex relative">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className="w-64 min-h-[calc(100vh-73px)] bg-white border-r-2 border-[var(--ink)]/10 shadow-sm">
+        <aside className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 bg-white border-r-2 border-[var(--ink)]/10 shadow-sm
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          lg:min-h-[calc(100vh-73px)] pt-16 lg:pt-0
+        `}>
+          {/* Mobile close button */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden absolute top-4 right-4 p-2 hover:bg-[var(--ink)]/5 rounded"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           <nav className="py-4">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
@@ -85,8 +120,8 @@ export default function AdminPage() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={`w-full flex items-center gap-3 px-6 py-4 font-display uppercase text-sm transition-colors ${
+                  onClick={() => handleSectionChange(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 font-display uppercase text-xs md:text-sm transition-colors ${
                     isActive
                       ? "bg-[var(--tv-red)] text-white"
                       : "hover:bg-[var(--ink)]/5"
@@ -102,7 +137,7 @@ export default function AdminPage() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full overflow-x-hidden">
           {activeSection === "home" && <HomeEditor />}
           {activeSection === "media" && <MediaLibrary />}
           {activeSection === "shows" && <ShowsEditor />}
@@ -527,19 +562,19 @@ function HomeEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Home Page Editor</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Home Page Editor</h2>
 
       {/* Hero Section */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Home className="w-5 h-5 text-[var(--tv-red)]" />
           Hero Section
         </h3>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {/* Left column - text fields */}
-          <div className="col-span-2 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-1 md:col-span-2 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-display uppercase text-sm mb-2">Title</label>
                 <input
@@ -568,7 +603,7 @@ function HomeEditor() {
                 className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-display uppercase text-sm mb-2">CTA Button Text</label>
                 <input
@@ -602,7 +637,7 @@ function HomeEditor() {
         {/* Featured Video Section */}
         <div className="mt-6 pt-6 border-t border-[var(--ink)]/10">
           <h4 className="font-display text-lg uppercase mb-4">Featured Video (Right Side)</h4>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <VideoInput
               currentVideoId={heroData.featuredVideoId}
               onVideoChange={(videoId) => setHeroData({ ...heroData, featuredVideoId: videoId })}
@@ -619,12 +654,12 @@ function HomeEditor() {
 
       {/* Studio Images */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <ImageIcon className="w-5 h-5 text-[var(--tv-red)]" />
           Studio Scrolling Images
         </h3>
 
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
           {studioImages.map((src, index) => (
             <div key={index} className="space-y-2">
               <ImageUploader
@@ -657,12 +692,12 @@ function HomeEditor() {
 
       {/* Featured Grid Section */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Film className="w-5 h-5 text-[var(--tv-red)]" />
           Featured Grid Section
         </h3>
 
-        <div className="grid grid-cols-2 gap-6 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Label Badge</label>
             <input
@@ -682,7 +717,7 @@ function HomeEditor() {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <VideoInput
             currentVideoId={featuredSection.videoId}
             onVideoChange={(videoId) => setFeaturedSection({ ...featuredSection, videoId: videoId })}
@@ -698,7 +733,7 @@ function HomeEditor() {
 
       {/* Marquee Section */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Edit3 className="w-5 h-5 text-[var(--tv-red)]" />
           Marquee Text
         </h3>
@@ -736,7 +771,7 @@ function HomeEditor() {
 
       {/* Capabilities Section */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Settings className="w-5 h-5 text-[var(--tv-red)]" />
           Capabilities
         </h3>
@@ -744,7 +779,7 @@ function HomeEditor() {
         <div className="space-y-4">
           {capabilities.map((cap, index) => (
             <div key={index} className="flex gap-4 items-start">
-              <div className="flex-1 grid grid-cols-2 gap-4">
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   type="text"
                   value={cap.title}
@@ -788,12 +823,12 @@ function HomeEditor() {
 
       {/* Studio Section */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Film className="w-5 h-5 text-[var(--tv-red)]" />
           Studio Section
         </h3>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Title</label>
             <input
@@ -812,7 +847,7 @@ function HomeEditor() {
               className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
             />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <label className="block font-display uppercase text-sm mb-2">Subtitle</label>
             <textarea
               value={studioSection.subtitle}
@@ -826,12 +861,12 @@ function HomeEditor() {
 
       {/* Quote Section */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Edit3 className="w-5 h-5 text-[var(--tv-red)]" />
           Quote Section
         </h3>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Quote</label>
             <input
@@ -884,16 +919,16 @@ function MediaLibrary() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Media Library</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Media Library</h2>
 
       {/* Add New Image */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Plus className="w-5 h-5 text-[var(--tv-red)]" />
           Add New Image
         </h3>
-        <div className="grid grid-cols-4 gap-4">
-          <div className="col-span-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="col-span-1 md:col-span-2">
             <label className="block font-display uppercase text-sm mb-2">Image URL</label>
             <input
               type="text"
@@ -948,7 +983,7 @@ function MediaLibrary() {
 
       {/* Add New Video */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Film className="w-5 h-5 text-[var(--tv-red)]" />
           Add New Video
         </h3>
@@ -1030,7 +1065,7 @@ function MediaLibrary() {
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {filteredImages.map((img, index) => (
             <div key={index} className="group relative">
               <ImagePreview src={img.url} alt={img.name} className="w-full h-32 border border-[var(--ink)]/20" />
@@ -1061,12 +1096,12 @@ function MediaLibrary() {
 
       {/* Video Gallery */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Film className="w-5 h-5 text-[var(--tv-red)]" />
           Videos ({videos.length})
         </h3>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {videos.map((video, index) => (
             <div key={index} className="border border-[var(--ink)]/10 p-4 rounded-lg">
               <VideoPreview videoId={video.videoId} />
@@ -1106,16 +1141,16 @@ function ShowsEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Shows Editor</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Shows Editor</h2>
 
       {/* Page Header */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Edit3 className="w-5 h-5 text-[var(--tv-red)]" />
           Page Header
         </h3>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Title</label>
             <input
@@ -1139,7 +1174,7 @@ function ShowsEditor() {
 
       {/* Shows List */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Film className="w-5 h-5 text-[var(--tv-red)]" />
           Videos ({shows.length})
         </h3>
@@ -1147,7 +1182,7 @@ function ShowsEditor() {
         <div className="space-y-6">
           {shows.map((show, index) => (
             <div key={index} className="border border-[var(--ink)]/10 p-4 rounded-lg">
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block font-display uppercase text-xs mb-1">Title</label>
                   <input
@@ -1175,7 +1210,7 @@ function ShowsEditor() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <VideoInput
                   currentVideoId={show.videoId}
                   onVideoChange={(videoId) => {
@@ -1236,16 +1271,16 @@ function JoinEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Join Page Editor</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Join Page Editor</h2>
 
       {/* Page Content */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Edit3 className="w-5 h-5 text-[var(--tv-red)]" />
           Page Content
         </h3>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Title</label>
             <input
@@ -1264,7 +1299,7 @@ function JoinEditor() {
               className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
             />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <label className="block font-display uppercase text-sm mb-2">Subtitle</label>
             <textarea
               value={pageContent.subtitle}
@@ -1278,7 +1313,7 @@ function JoinEditor() {
 
       {/* Roles */}
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Users className="w-5 h-5 text-[var(--tv-red)]" />
           Open Roles
         </h3>
@@ -1362,15 +1397,15 @@ function ContactEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Contact Page Editor</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Contact Page Editor</h2>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Mail className="w-5 h-5 text-[var(--tv-red)]" />
           Page Content
         </h3>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Form Title</label>
             <input
@@ -1407,7 +1442,7 @@ function ContactEditor() {
               className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
             />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <label className="block font-display uppercase text-sm mb-2">Info Subtitle</label>
             <textarea
               value={pageContent.infoSubtitle}
@@ -1433,10 +1468,10 @@ function NavigationEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Navigation Editor</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Navigation Editor</h2>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Menu className="w-5 h-5 text-[var(--tv-red)]" />
           Menu Items
         </h3>
@@ -1501,10 +1536,10 @@ function FooterEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Footer & Socials Editor</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Footer & Socials Editor</h2>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Edit3 className="w-5 h-5 text-[var(--tv-red)]" />
           Footer Content
         </h3>
@@ -1521,7 +1556,7 @@ function FooterEditor() {
       </section>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <LinkIcon className="w-5 h-5 text-[var(--tv-red)]" />
           Social Links
         </h3>
@@ -1588,15 +1623,15 @@ function SettingsEditor() {
 
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-4xl uppercase mb-8">Site Settings</h2>
+      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Site Settings</h2>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <Settings className="w-5 h-5 text-[var(--tv-red)]" />
           General Settings
         </h3>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Site Name</label>
             <input
@@ -1615,7 +1650,7 @@ function SettingsEditor() {
               className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
             />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <label className="block font-display uppercase text-sm mb-2">Site Description (SEO)</label>
             <textarea
               value={siteSettings.siteDescription}
@@ -1628,12 +1663,12 @@ function SettingsEditor() {
       </section>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
-        <h3 className="font-display text-2xl uppercase mb-6 flex items-center gap-2">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
           <ImageIcon className="w-5 h-5 text-[var(--tv-red)]" />
           Brand Colors
         </h3>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Ink (Dark)</label>
             <div className="flex gap-2">
@@ -1693,7 +1728,7 @@ function SettingsEditor() {
         <p className="text-[var(--ink)]/70 mb-4">
           To enable data persistence, connect your Supabase project. You&apos;ll need to add your Supabase URL and anon key to your environment variables.
         </p>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Supabase URL</label>
             <input
