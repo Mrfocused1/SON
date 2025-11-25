@@ -86,6 +86,22 @@ body {
   }
 }
 
+/* Toast Animation */
+.animate-slide-down {
+  animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Layout Utils */
 .grid-border {
   border: 2px solid var(--ink);

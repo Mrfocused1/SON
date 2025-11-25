@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, createContext, useContext } from "react";
 import {
   Home,
   Film,
@@ -20,9 +20,58 @@ import {
   X,
   Loader2,
   Check,
-  AlertCircle
+  AlertCircle,
+  CheckCircle2,
+  XCircle
 } from "lucide-react";
 import { supabase, uploadImage } from "@/lib/supabase";
+
+// Toast Notification Context
+type ToastType = "success" | "error" | "info";
+type Toast = { id: number; message: string; type: ToastType };
+
+const ToastContext = createContext<{
+  showToast: (message: string, type: ToastType) => void;
+}>({ showToast: () => {} });
+
+function useToast() {
+  return useContext(ToastContext);
+}
+
+// Toast Notification Component
+function ToastContainer({ toasts, removeToast }: { toasts: Toast[]; removeToast: (id: number) => void }) {
+  return (
+    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none">
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          className={`pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl border-2 animate-slide-down min-w-[300px] max-w-[90vw] ${
+            toast.type === "success"
+              ? "bg-green-50 border-green-500 text-green-800"
+              : toast.type === "error"
+              ? "bg-red-50 border-red-500 text-red-800"
+              : "bg-blue-50 border-blue-500 text-blue-800"
+          }`}
+        >
+          {toast.type === "success" ? (
+            <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+          ) : toast.type === "error" ? (
+            <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="w-6 h-6 text-blue-500 flex-shrink-0" />
+          )}
+          <span className="font-medium text-sm md:text-base flex-1">{toast.message}</span>
+          <button
+            onClick={() => removeToast(toast.id)}
+            className="p-1 hover:bg-black/10 rounded transition-colors flex-shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 type Section = "home" | "media" | "shows" | "join" | "contact" | "navigation" | "footer" | "settings";
 
@@ -30,6 +79,23 @@ export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<Section>("home");
   const [isSaving, setIsSaving] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Toast state
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastIdRef = useRef(0);
+
+  const showToast = useCallback((message: string, type: ToastType) => {
+    const id = toastIdRef.current++;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  }, []);
+
+  const removeToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   const sidebarItems = [
     { id: "home" as Section, label: "Home Page", icon: Home },
@@ -55,7 +121,11 @@ export default function AdminPage() {
   };
 
   return (
+    <ToastContext.Provider value={{ showToast }}>
     <div className="min-h-screen bg-[var(--cream)] text-[var(--ink)]">
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+
       {/* Admin Header */}
       <header className="bg-white border-b-2 border-[var(--ink)]/10 px-3 md:px-6 py-3 md:py-4 flex justify-between items-center shadow-sm sticky top-0 z-40">
         <div className="flex items-center gap-2 md:gap-4">
@@ -152,6 +222,7 @@ export default function AdminPage() {
         </main>
       </div>
     </div>
+    </ToastContext.Provider>
   );
 }
 
@@ -513,6 +584,7 @@ function VideoInput({
 
 // Home Page Editor
 function HomeEditor() {
+  const { showToast } = useToast();
   const [heroData, setHeroData] = useState({
     title: "Ready",
     titleAccent: "To Roll.",
@@ -543,7 +615,6 @@ function HomeEditor() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Load all home page data from Supabase
   useEffect(() => {
@@ -631,7 +702,6 @@ function HomeEditor() {
     }
 
     setSaving(true);
-    setSaveStatus("idle");
 
     try {
       // Update home_content
@@ -684,15 +754,14 @@ function HomeEditor() {
       const { data: newImages } = await supabase.from("studio_images").select("*").order("order", { ascending: true });
       if (newImages) setStudioImages(newImages);
 
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      showToast("Home page saved successfully!", "success");
     } catch (error) {
       console.error("Error saving home data:", error);
-      setSaveStatus("error");
+      showToast("Failed to save. Please try again.", "error");
     } finally {
       setSaving(false);
     }
-  }, [heroData, marqueeItems, capabilities, studioSection, studioImages, quoteSection]);
+  }, [heroData, marqueeItems, capabilities, studioSection, studioImages, quoteSection, showToast]);
 
   if (loading) {
     return (
@@ -998,14 +1067,10 @@ function HomeEditor() {
         >
           {saving ? (
             <Loader2 className="w-5 h-5 animate-spin" />
-          ) : saveStatus === "success" ? (
-            <Check className="w-5 h-5" />
-          ) : saveStatus === "error" ? (
-            <AlertCircle className="w-5 h-5" />
           ) : (
             <Save className="w-5 h-5" />
           )}
-          <span>{saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error!" : "Save Changes"}</span>
+          <span>{saving ? "Saving..." : "Save Changes"}</span>
         </button>
       </div>
     </div>
@@ -1249,6 +1314,7 @@ function MediaLibrary() {
 
 // Shows Editor
 function ShowsEditor() {
+  const { showToast } = useToast();
   const [shows, setShows] = useState<Array<{ id?: string; video_id: string; thumbnail: string; title: string; category: string; order?: number }>>([]);
   const [pageContent, setPageContent] = useState({
     title: "Our Shows",
@@ -1256,7 +1322,6 @@ function ShowsEditor() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Load shows from Supabase
   useEffect(() => {
@@ -1309,7 +1374,6 @@ function ShowsEditor() {
     }
 
     setSaving(true);
-    setSaveStatus("idle");
 
     try {
       // Delete all existing shows
@@ -1343,15 +1407,14 @@ function ShowsEditor() {
         .order("order", { ascending: true });
 
       if (data) setShows(data);
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      showToast("Shows saved successfully!", "success");
     } catch (error) {
       console.error("Error saving shows:", error);
-      setSaveStatus("error");
+      showToast("Failed to save shows. Please try again.", "error");
     } finally {
       setSaving(false);
     }
-  }, [shows, pageContent]);
+  }, [shows, pageContent, showToast]);
 
   if (loading) {
     return (
@@ -1476,14 +1539,10 @@ function ShowsEditor() {
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : saveStatus === "success" ? (
-                <Check className="w-4 h-4" />
-              ) : saveStatus === "error" ? (
-                <AlertCircle className="w-4 h-4" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Shows"}
+              {saving ? "Saving..." : "Save Shows"}
             </button>
           </div>
         </div>
@@ -1494,6 +1553,7 @@ function ShowsEditor() {
 
 // Join Page Editor
 function JoinEditor() {
+  const { showToast } = useToast();
   const [pageContent, setPageContent] = useState({
     title: "Join The",
     titleAccent: "Team.",
@@ -1506,7 +1566,6 @@ function JoinEditor() {
   const [roles, setRoles] = useState<Array<{ id?: string; title: string; type: string; description: string; order?: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Load data from Supabase
   useEffect(() => {
@@ -1563,7 +1622,6 @@ function JoinEditor() {
     }
 
     setSaving(true);
-    setSaveStatus("idle");
 
     try {
       // Delete all existing roles
@@ -1600,15 +1658,14 @@ function JoinEditor() {
         .order("order", { ascending: true });
 
       if (data) setRoles(data);
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      showToast("Join page saved successfully!", "success");
     } catch (error) {
       console.error("Error saving join page:", error);
-      setSaveStatus("error");
+      showToast("Failed to save join page. Please try again.", "error");
     } finally {
       setSaving(false);
     }
-  }, [roles, pageContent]);
+  }, [roles, pageContent, showToast]);
 
   if (loading) {
     return (
@@ -1736,14 +1793,10 @@ function JoinEditor() {
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : saveStatus === "success" ? (
-                <Check className="w-4 h-4" />
-              ) : saveStatus === "error" ? (
-                <AlertCircle className="w-4 h-4" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Join Page"}
+              {saving ? "Saving..." : "Save Join Page"}
             </button>
           </div>
         </div>
@@ -1754,6 +1807,7 @@ function JoinEditor() {
 
 // Contact Page Editor
 function ContactEditor() {
+  const { showToast } = useToast();
   const [pageContent, setPageContent] = useState({
     formTitle: "Hit Us Up",
     infoTitle: "Let's",
@@ -1763,7 +1817,6 @@ function ContactEditor() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Load from Supabase
   useEffect(() => {
@@ -1800,7 +1853,6 @@ function ContactEditor() {
     }
 
     setSaving(true);
-    setSaveStatus("idle");
 
     try {
       const { data: existingContent } = await supabase.from("contact_content").select("id").single();
@@ -1816,15 +1868,14 @@ function ContactEditor() {
         if (error) throw error;
       }
 
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      showToast("Contact page saved successfully!", "success");
     } catch (error) {
       console.error("Error saving contact page:", error);
-      setSaveStatus("error");
+      showToast("Failed to save contact page. Please try again.", "error");
     } finally {
       setSaving(false);
     }
-  }, [pageContent]);
+  }, [pageContent, showToast]);
 
   if (loading) {
     return (
@@ -1898,14 +1949,10 @@ function ContactEditor() {
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : saveStatus === "success" ? (
-                <Check className="w-4 h-4" />
-              ) : saveStatus === "error" ? (
-                <AlertCircle className="w-4 h-4" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Contact Page"}
+              {saving ? "Saving..." : "Save Contact Page"}
             </button>
           </div>
         </div>
@@ -1916,10 +1963,10 @@ function ContactEditor() {
 
 // Navigation Editor
 function NavigationEditor() {
+  const { showToast } = useToast();
   const [navItems, setNavItems] = useState<Array<{ id?: string; label: string; href: string; order?: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Load navigation items from Supabase
   useEffect(() => {
@@ -1958,7 +2005,6 @@ function NavigationEditor() {
     }
 
     setSaving(true);
-    setSaveStatus("idle");
 
     try {
       // Delete all existing items
@@ -1982,15 +2028,14 @@ function NavigationEditor() {
         .order("order", { ascending: true });
 
       if (data) setNavItems(data);
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      showToast("Navigation saved successfully!", "success");
     } catch (error) {
       console.error("Error saving navigation:", error);
-      setSaveStatus("error");
+      showToast("Failed to save navigation. Please try again.", "error");
     } finally {
       setSaving(false);
     }
-  }, [navItems]);
+  }, [navItems, showToast]);
 
   if (loading) {
     return (
@@ -2108,14 +2153,10 @@ function NavigationEditor() {
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
-            ) : saveStatus === "success" ? (
-              <Check className="w-4 h-4" />
-            ) : saveStatus === "error" ? (
-              <AlertCircle className="w-4 h-4" />
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Navigation"}
+            {saving ? "Saving..." : "Save Navigation"}
           </button>
         </div>
       </section>
@@ -2125,6 +2166,7 @@ function NavigationEditor() {
 
 // Footer Editor
 function FooterEditor() {
+  const { showToast } = useToast();
   const [footerContent, setFooterContent] = useState({
     companyName: "SON NETWORKS",
   });
@@ -2132,7 +2174,6 @@ function FooterEditor() {
   const [socialLinks, setSocialLinks] = useState<Array<{ id?: string; label: string; href: string; order?: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Load social links from Supabase
   useEffect(() => {
@@ -2170,7 +2211,6 @@ function FooterEditor() {
     }
 
     setSaving(true);
-    setSaveStatus("idle");
 
     try {
       // Delete all existing items
@@ -2195,15 +2235,14 @@ function FooterEditor() {
         .order("order", { ascending: true });
 
       if (data) setSocialLinks(data);
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      showToast("Social links saved successfully!", "success");
     } catch (error) {
       console.error("Error saving social links:", error);
-      setSaveStatus("error");
+      showToast("Failed to save social links. Please try again.", "error");
     } finally {
       setSaving(false);
     }
-  }, [socialLinks]);
+  }, [socialLinks, showToast]);
 
   if (loading) {
     return (
@@ -2338,14 +2377,10 @@ function FooterEditor() {
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
-            ) : saveStatus === "success" ? (
-              <Check className="w-4 h-4" />
-            ) : saveStatus === "error" ? (
-              <AlertCircle className="w-4 h-4" />
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {saving ? "Saving..." : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Error" : "Save Social Links"}
+            {saving ? "Saving..." : "Save Social Links"}
           </button>
         </div>
       </section>
