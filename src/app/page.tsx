@@ -31,8 +31,12 @@ export default function Home() {
   const { openVideo } = useVideoModal();
   const { t, language } = useLanguage();
 
-  // State for dynamic content from Supabase (only non-text content)
+  // State for dynamic content from Supabase
   const [homeContent, setHomeContent] = useState({
+    heroTitle: "",
+    heroTitleAccent: "",
+    heroSubtitle: "",
+    heroCtaText: "",
     heroCtaLink: "/shows",
     heroBackgroundImage: "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
     heroBackgroundImageMobile: null as string | null,
@@ -66,6 +70,10 @@ export default function Home() {
 
         if (homeData) {
           setHomeContent({
+            heroTitle: homeData.hero_title || "",
+            heroTitleAccent: homeData.hero_title_accent || "",
+            heroSubtitle: homeData.hero_subtitle || "",
+            heroCtaText: homeData.hero_cta_text || "",
             heroCtaLink: homeData.hero_cta_link || "/shows",
             heroBackgroundImage: homeData.hero_background_image || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
             heroBackgroundImageMobile: homeData.hero_background_image_mobile || null,
@@ -138,11 +146,11 @@ export default function Home() {
             />
 
             <h1 className="font-display mega-text uppercase text-[var(--cream)] z-10 animate-fade-up">
-              {t.hero.title}<br />
-              <span className="text-[var(--tv-red)]">{t.hero.titleAccent}</span>
+              {homeContent.heroTitle || t.hero.title}<br />
+              <span className="text-[var(--tv-red)]">{homeContent.heroTitleAccent || t.hero.titleAccent}</span>
             </h1>
             <p className="font-sans text-xl md:text-2xl mt-8 max-w-lg font-medium leading-relaxed z-10 text-[var(--cream)] animate-fade-up">
-              {t.hero.subtitle}
+              {homeContent.heroSubtitle || t.hero.subtitle}
             </p>
 
             {/* CTA */}
@@ -151,7 +159,7 @@ export default function Home() {
                 href={homeContent.heroCtaLink}
                 className="bg-[var(--tv-red)] text-[var(--cream)] px-8 py-4 font-display text-xl uppercase hover:bg-[var(--cream)] hover:text-[var(--ink)] transition-colors border-2 border-[var(--tv-red)]"
               >
-                {t.hero.cta}
+                {homeContent.heroCtaText || t.hero.cta}
               </TransitionLink>
             </div>
           </div>
