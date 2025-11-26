@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { CustomCursor } from "@/components/CustomCursor";
 import { VideoModal } from "@/components/VideoModal";
 import { Preloader } from "@/components/Preloader";
+import { PageTransition } from "@/components/PageTransition";
 import { ScrollAnimations } from "@/components/ScrollAnimations";
 import { VideoModalProvider } from "@/context/VideoModalContext";
 import { PreloaderProvider } from "@/context/PreloaderContext";
@@ -47,6 +48,7 @@ export default function RootLayout({
           <PreloaderProvider>
             <VideoModalProvider>
             <Preloader />
+            <PageTransition />
             <ScrollAnimations />
             <CustomCursor />
             <VideoModal />
