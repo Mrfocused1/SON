@@ -94,7 +94,7 @@ export function Navbar() {
           ))}
           {/* Mobile Language Switcher */}
           <div className="px-6 py-4 border-b border-gray-800">
-            <LanguageSwitcher />
+            <LanguageSwitcher variant="dark" />
           </div>
         </div>
       )}
