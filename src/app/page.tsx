@@ -201,14 +201,14 @@ export default function Home() {
         <div className="p-12 md:p-24 border-b-2 md:border-b-0 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-between animate-slide-left">
           <div>
             <span className="font-bold uppercase tracking-widest text-[var(--tv-red)] mb-4 block animate-fade-up">
-              {t.capabilities.create}
+              {capabilities[0]?.title || t.capabilities.create}
             </span>
             <h2 className="font-display text-6xl uppercase leading-none animate-fade-up">
-              {t.capabilities.collaborate}<br />
-              <span className="text-[var(--tv-red)]">{t.capabilities.innovate}</span>
+              {capabilities[1]?.title || t.capabilities.collaborate}<br />
+              <span className="text-[var(--tv-red)]">{capabilities[2]?.title || t.capabilities.innovate}</span>
             </h2>
             <p className="text-xl mt-8 font-medium max-w-md animate-fade-up">
-              {t.capabilities.createDesc}
+              {capabilities[0]?.description || t.capabilities.createDesc}
             </p>
           </div>
           <div className="mt-12 animate-pop">
@@ -221,12 +221,7 @@ export default function Home() {
           </div>
         </div>
         <div className="bg-[var(--ink)] text-[var(--cream)] flex flex-col animate-stagger">
-          {[
-            { title: t.capabilities.create, description: t.capabilities.createDesc, icon: "Sparkles" },
-            { title: t.capabilities.collaborate, description: t.capabilities.collaborateDesc, icon: "Users" },
-            { title: t.capabilities.innovate, description: t.capabilities.innovateDesc, icon: "Lightbulb" },
-            { title: t.capabilities.launch, description: t.capabilities.launchDesc, icon: "Rocket" },
-          ].map((cap, index, arr) => {
+          {capabilities.map((cap, index, arr) => {
             const Icon = iconMap[cap.icon] || Sparkles;
             return (
               <div
