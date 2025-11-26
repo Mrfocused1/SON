@@ -52,6 +52,8 @@ export default function Home() {
     featuredFocalXMobile: 0.5,
     featuredFocalYMobile: 0.5,
     marqueeItems: [] as string[],
+    quoteText: "",
+    quoteAccent: "",
   });
 
   const [capabilities, setCapabilities] = useState(defaultCapabilities);
@@ -89,6 +91,8 @@ export default function Home() {
             featuredFocalXMobile: homeData.featured_focal_x_mobile ?? 0.5,
             featuredFocalYMobile: homeData.featured_focal_y_mobile ?? 0.5,
             marqueeItems: homeData.marquee_items || [],
+            quoteText: homeData.quote_text || "",
+            quoteAccent: homeData.quote_accent || "",
           });
         }
 
@@ -288,8 +292,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
         <div className="container mx-auto px-6 relative z-10">
           <h2 className="font-display text-[8vw] leading-[0.85] uppercase animate-fade-up">
-            &ldquo;{t.quote.text}<br />
-            <span className="text-[var(--tv-red)]">{t.quote.accent}</span>&rdquo;
+            &ldquo;{homeContent.quoteText || t.quote.text}<br />
+            <span className="text-[var(--tv-red)]">{homeContent.quoteAccent || t.quote.accent}</span>&rdquo;
           </h2>
         </div>
       </section>
