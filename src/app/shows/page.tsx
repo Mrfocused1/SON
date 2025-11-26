@@ -11,6 +11,8 @@ type VideoData = {
   thumbnailMobile?: string | null;
   focalX?: number;
   focalY?: number;
+  focalXMobile?: number;
+  focalYMobile?: number;
   title: string;
   category: string;
 };
@@ -24,6 +26,8 @@ const defaultVideos: VideoData[] = [
     category: "Behind The Scenes",
     focalX: 0.5,
     focalY: 0.5,
+    focalXMobile: 0.5,
+    focalYMobile: 0.5,
   },
   {
     videoId: "hSiSKAgO3mM",
@@ -32,6 +36,8 @@ const defaultVideos: VideoData[] = [
     category: "Viral Short",
     focalX: 0.5,
     focalY: 0.5,
+    focalXMobile: 0.5,
+    focalYMobile: 0.5,
   },
   {
     videoId: "hSiSKAgO3mM",
@@ -40,6 +46,8 @@ const defaultVideos: VideoData[] = [
     category: "Documentary",
     focalX: 0.5,
     focalY: 0.5,
+    focalXMobile: 0.5,
+    focalYMobile: 0.5,
   },
 ];
 
@@ -83,6 +91,8 @@ export default function ShowsPage() {
               thumbnailMobile: show.thumbnail_mobile || null,
               focalX: show.focal_x ?? 0.5,
               focalY: show.focal_y ?? 0.5,
+              focalXMobile: show.focal_x_mobile ?? 0.5,
+              focalYMobile: show.focal_y_mobile ?? 0.5,
               title: show.title,
               category: show.category,
             }))

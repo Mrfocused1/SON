@@ -10,12 +10,15 @@ import { ImagePreviewToggle } from "./ImagePreviewToggle";
 interface ResponsiveImageUploaderProps {
   label: string;
   desktopImage: string;
-  mobileImage?: string;
-  focalX: number;
-  focalY: number;
+  mobileImage?: string | null;
+  desktopFocalX: number;
+  desktopFocalY: number;
+  mobileFocalX: number;
+  mobileFocalY: number;
   onDesktopChange: (url: string) => void;
   onMobileChange: (url: string | null) => void;
-  onFocalChange: (x: number, y: number) => void;
+  onDesktopFocalChange: (x: number, y: number) => void;
+  onMobileFocalChange: (x: number, y: number) => void;
   recommendedDesktop: { width: number; height: number };
   recommendedMobile: { width: number; height: number };
   desktopAspect?: string;
@@ -26,11 +29,14 @@ export function ResponsiveImageUploader({
   label,
   desktopImage,
   mobileImage,
-  focalX,
-  focalY,
+  desktopFocalX,
+  desktopFocalY,
+  mobileFocalX,
+  mobileFocalY,
   onDesktopChange,
   onMobileChange,
-  onFocalChange,
+  onDesktopFocalChange,
+  onMobileFocalChange,
   recommendedDesktop,
   recommendedMobile,
   desktopAspect = "16/9",
@@ -43,6 +49,10 @@ export function ResponsiveImageUploader({
 
   const desktopInputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
+
+  // Ensure focal points have valid defaults
+  const safeFocalX = (val: number | undefined | null) => (typeof val === 'number' && !isNaN(val) ? val : 0.5);
+  const safeFocalY = (val: number | undefined | null) => (typeof val === 'number' && !isNaN(val) ? val : 0.5);
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -92,20 +102,20 @@ export function ResponsiveImageUploader({
     <div className="flex-1">
       <div className="flex items-center gap-2 mb-2">
         {type === "desktop" ? (
-          <Monitor className="w-4 h-4 text-gray-500" />
+          <Monitor className="w-4 h-4 text-[var(--ink)]/60" />
         ) : (
-          <Smartphone className="w-4 h-4 text-gray-500" />
+          <Smartphone className="w-4 h-4 text-[var(--ink)]/60" />
         )}
-        <span className="text-sm font-medium text-gray-700 capitalize">
+        <span className="font-display text-sm uppercase text-[var(--ink)]">
           {type} {type === "mobile" && "(Optional)"}
         </span>
       </div>
 
-      <div className="text-xs text-gray-500 mb-2">
+      <div className="text-xs text-[var(--ink)]/50 mb-2">
         Recommended: {recommended.width}×{recommended.height}px
       </div>
 
-      <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors group">
+      <div className="relative aspect-video bg-[var(--cream)] overflow-hidden border-2 border-dashed border-[var(--ink)]/20 hover:border-[var(--ink)]/40 transition-colors group">
         {image ? (
           <>
             <Image
@@ -114,10 +124,10 @@ export function ResponsiveImageUploader({
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-[var(--ink)]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button
                 onClick={() => (type === "desktop" ? desktopInputRef : mobileInputRef).current?.click()}
-                className="p-2 bg-white rounded-lg hover:bg-gray-100"
+                className="p-2 bg-[var(--cream)] text-[var(--ink)] hover:bg-white transition-colors"
                 title="Upload new image"
               >
                 <Upload className="w-4 h-4" />
@@ -127,7 +137,7 @@ export function ResponsiveImageUploader({
                   setUrlInput(image);
                   setShowUrlModal(type);
                 }}
-                className="p-2 bg-white rounded-lg hover:bg-gray-100"
+                className="p-2 bg-[var(--cream)] text-[var(--ink)] hover:bg-white transition-colors"
                 title="Set URL"
               >
                 <Link className="w-4 h-4" />
@@ -135,7 +145,7 @@ export function ResponsiveImageUploader({
               {type === "mobile" && (
                 <button
                   onClick={() => onMobileChange(null)}
-                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  className="p-2 bg-[var(--tv-red)] text-white hover:bg-red-600 transition-colors"
                   title="Remove mobile image"
                 >
                   <X className="w-4 h-4" />
@@ -149,17 +159,17 @@ export function ResponsiveImageUploader({
             onClick={() => (type === "desktop" ? desktopInputRef : mobileInputRef).current?.click()}
           >
             {isUploading === type ? (
-              <span className="text-sm text-gray-500">Uploading...</span>
+              <span className="text-sm text-[var(--ink)]/50">Uploading...</span>
             ) : (
               <>
-                <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-500">Click to upload</span>
+                <ImageIcon className="w-8 h-8 text-[var(--ink)]/30 mb-2" />
+                <span className="text-sm text-[var(--ink)]/50">Click to upload</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowUrlModal(type);
                   }}
-                  className="mt-2 text-xs text-blue-500 hover:text-blue-600"
+                  className="mt-2 text-xs text-[var(--tv-red)] hover:underline"
                 >
                   or paste URL
                 </button>
@@ -180,30 +190,29 @@ export function ResponsiveImageUploader({
   );
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-gray-900">{label}</h3>
-        <div className="text-xs text-gray-500">
-          Desktop: {recommendedDesktop.width}×{recommendedDesktop.height} | Mobile:{" "}
-          {recommendedMobile.width}×{recommendedMobile.height}
+    <div className="border-2 border-[var(--ink)]/10 p-4 space-y-4 bg-white">
+      {/* Header - Stacked layout to prevent overlap */}
+      <div className="space-y-1">
+        <h3 className="font-display text-lg uppercase text-[var(--ink)]">{label}</h3>
+        <div className="text-xs text-[var(--ink)]/50">
+          Desktop: {recommendedDesktop.width}×{recommendedDesktop.height}px | Mobile: {recommendedMobile.width}×{recommendedMobile.height}px
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b-2 border-[var(--ink)]/10">
         {[
           { id: "images", label: "Images" },
-          { id: "focal", label: "Focal Point" },
+          { id: "focal", label: "Focal Points" },
           { id: "preview", label: "Preview" },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 font-display text-sm uppercase border-b-2 -mb-[2px] transition-colors ${
               activeTab === tab.id
                 ? "border-[var(--tv-red)] text-[var(--tv-red)]"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-[var(--ink)]/50 hover:text-[var(--ink)]"
             }`}
           >
             {tab.label}
@@ -221,7 +230,7 @@ export function ResponsiveImageUploader({
           />
           <ImageUploadBox
             type="mobile"
-            image={mobileImage}
+            image={mobileImage || undefined}
             recommended={recommendedMobile}
           />
         </div>
@@ -229,10 +238,14 @@ export function ResponsiveImageUploader({
 
       {activeTab === "focal" && (
         <FocalPointPicker
-          imageUrl={desktopImage}
-          focalX={focalX}
-          focalY={focalY}
-          onFocalChange={onFocalChange}
+          desktopImageUrl={desktopImage}
+          mobileImageUrl={mobileImage}
+          desktopFocalX={safeFocalX(desktopFocalX)}
+          desktopFocalY={safeFocalY(desktopFocalY)}
+          mobileFocalX={safeFocalX(mobileFocalX)}
+          mobileFocalY={safeFocalY(mobileFocalY)}
+          onDesktopFocalChange={onDesktopFocalChange}
+          onMobileFocalChange={onMobileFocalChange}
         />
       )}
 
@@ -240,8 +253,10 @@ export function ResponsiveImageUploader({
         <ImagePreviewToggle
           desktopImage={desktopImage}
           mobileImage={mobileImage}
-          focalX={focalX}
-          focalY={focalY}
+          desktopFocalX={safeFocalX(desktopFocalX)}
+          desktopFocalY={safeFocalY(desktopFocalY)}
+          mobileFocalX={safeFocalX(mobileFocalX)}
+          mobileFocalY={safeFocalY(mobileFocalY)}
           desktopAspect={desktopAspect}
           mobileAspect={mobileAspect}
         />
@@ -249,9 +264,9 @@ export function ResponsiveImageUploader({
 
       {/* URL Modal */}
       {showUrlModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium mb-4">
+        <div className="fixed inset-0 bg-[var(--ink)]/50 flex items-center justify-center z-50">
+          <div className="bg-[var(--cream)] p-6 w-full max-w-md border-2 border-[var(--ink)]">
+            <h3 className="font-display text-xl uppercase mb-4 text-[var(--ink)]">
               Enter {showUrlModal} image URL
             </h3>
             <input
@@ -259,11 +274,11 @@ export function ResponsiveImageUploader({
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4"
+              className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 mb-4 bg-white focus:outline-none focus:border-[var(--tv-red)]"
               autoFocus
             />
             {urlInput && (
-              <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
+              <div className="relative aspect-video bg-[var(--ink)]/5 overflow-hidden mb-4 border-2 border-[var(--ink)]/10">
                 <Image
                   src={urlInput}
                   alt="Preview"
@@ -279,13 +294,13 @@ export function ResponsiveImageUploader({
                   setShowUrlModal(null);
                   setUrlInput("");
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-[var(--ink)]/60 hover:text-[var(--ink)] font-display uppercase text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUrlSubmit}
-                className="px-4 py-2 bg-[var(--tv-red)] text-white rounded-lg hover:opacity-90"
+                className="px-4 py-2 bg-[var(--tv-red)] text-white font-display uppercase text-sm hover:bg-red-600 transition-colors"
               >
                 Save
               </button>

@@ -602,11 +602,15 @@ function HomeEditor() {
     backgroundImageMobile: "",
     heroFocalX: 0.5,
     heroFocalY: 0.5,
+    heroFocalXMobile: 0.5,
+    heroFocalYMobile: 0.5,
     featuredVideoId: "hSiSKAgO3mM",
     featuredVideoThumbnail: "",
     featuredThumbnailMobile: "",
     featuredFocalX: 0.5,
     featuredFocalY: 0.5,
+    featuredFocalXMobile: 0.5,
+    featuredFocalYMobile: 0.5,
   });
 
   const [marqueeItems, setMarqueeItems] = useState<string[]>([]);
@@ -619,7 +623,7 @@ function HomeEditor() {
     subtitle: "SON Networks is a new breed of production house. We combine cinematic quality with the pacing of internet culture.",
   });
 
-  const [studioImages, setStudioImages] = useState<Array<{ id?: string; image_url: string; image_url_mobile?: string; focal_x?: number; focal_y?: number; alt?: string; order?: number }>>([]);
+  const [studioImages, setStudioImages] = useState<Array<{ id?: string; image_url: string; image_url_mobile?: string; focal_x?: number; focal_y?: number; focal_x_mobile?: number; focal_y_mobile?: number; alt?: string; order?: number }>>([]);
 
   const [quoteSection, setQuoteSection] = useState({
     quote: "We don't chase trends.",
@@ -667,11 +671,15 @@ function HomeEditor() {
             backgroundImageMobile: homeContent.hero_background_image_mobile || "",
             heroFocalX: homeContent.hero_focal_x ?? 0.5,
             heroFocalY: homeContent.hero_focal_y ?? 0.5,
+            heroFocalXMobile: homeContent.hero_focal_x_mobile ?? 0.5,
+            heroFocalYMobile: homeContent.hero_focal_y_mobile ?? 0.5,
             featuredVideoId: homeContent.featured_video_id || "",
             featuredVideoThumbnail: homeContent.featured_video_thumbnail || "",
             featuredThumbnailMobile: homeContent.featured_thumbnail_mobile || "",
             featuredFocalX: homeContent.featured_focal_x ?? 0.5,
             featuredFocalY: homeContent.featured_focal_y ?? 0.5,
+            featuredFocalXMobile: homeContent.featured_focal_x_mobile ?? 0.5,
+            featuredFocalYMobile: homeContent.featured_focal_y_mobile ?? 0.5,
           });
           setMarqueeItems(homeContent.marquee_items || []);
           setStudioSection({
@@ -736,11 +744,15 @@ function HomeEditor() {
           hero_background_image_mobile: heroData.backgroundImageMobile || null,
           hero_focal_x: heroData.heroFocalX,
           hero_focal_y: heroData.heroFocalY,
+          hero_focal_x_mobile: heroData.heroFocalXMobile,
+          hero_focal_y_mobile: heroData.heroFocalYMobile,
           featured_video_id: heroData.featuredVideoId,
           featured_video_thumbnail: heroData.featuredVideoThumbnail,
           featured_thumbnail_mobile: heroData.featuredThumbnailMobile || null,
           featured_focal_x: heroData.featuredFocalX,
           featured_focal_y: heroData.featuredFocalY,
+          featured_focal_x_mobile: heroData.featuredFocalXMobile,
+          featured_focal_y_mobile: heroData.featuredFocalYMobile,
           marquee_items: marqueeItems,
           studio_title: studioSection.title,
           studio_title_accent: studioSection.titleAccent,
@@ -769,6 +781,8 @@ function HomeEditor() {
         image_url_mobile: img.image_url_mobile || null,
         focal_x: img.focal_x ?? 0.5,
         focal_y: img.focal_y ?? 0.5,
+        focal_x_mobile: img.focal_x_mobile ?? 0.5,
+        focal_y_mobile: img.focal_y_mobile ?? 0.5,
         alt: img.alt || `Studio image ${index + 1}`,
         order: index + 1,
       }));
@@ -872,11 +886,14 @@ function HomeEditor() {
             label="Hero Background Image"
             desktopImage={heroData.backgroundImage}
             mobileImage={heroData.backgroundImageMobile}
-            focalX={heroData.heroFocalX}
-            focalY={heroData.heroFocalY}
+            desktopFocalX={heroData.heroFocalX}
+            desktopFocalY={heroData.heroFocalY}
+            mobileFocalX={heroData.heroFocalXMobile}
+            mobileFocalY={heroData.heroFocalYMobile}
             onDesktopChange={(url) => setHeroData({ ...heroData, backgroundImage: url })}
             onMobileChange={(url) => setHeroData({ ...heroData, backgroundImageMobile: url || "" })}
-            onFocalChange={(x, y) => setHeroData({ ...heroData, heroFocalX: x, heroFocalY: y })}
+            onDesktopFocalChange={(x, y) => setHeroData({ ...heroData, heroFocalX: x, heroFocalY: y })}
+            onMobileFocalChange={(x, y) => setHeroData({ ...heroData, heroFocalXMobile: x, heroFocalYMobile: y })}
             recommendedDesktop={{ width: 1920, height: 1080 }}
             recommendedMobile={{ width: 750, height: 1334 }}
             desktopAspect="16/9"
@@ -898,11 +915,14 @@ function HomeEditor() {
                 label="Video Thumbnail"
                 desktopImage={heroData.featuredVideoThumbnail}
                 mobileImage={heroData.featuredThumbnailMobile}
-                focalX={heroData.featuredFocalX}
-                focalY={heroData.featuredFocalY}
+                desktopFocalX={heroData.featuredFocalX}
+                desktopFocalY={heroData.featuredFocalY}
+                mobileFocalX={heroData.featuredFocalXMobile}
+                mobileFocalY={heroData.featuredFocalYMobile}
                 onDesktopChange={(url) => setHeroData({ ...heroData, featuredVideoThumbnail: url })}
                 onMobileChange={(url) => setHeroData({ ...heroData, featuredThumbnailMobile: url || "" })}
-                onFocalChange={(x, y) => setHeroData({ ...heroData, featuredFocalX: x, featuredFocalY: y })}
+                onDesktopFocalChange={(x, y) => setHeroData({ ...heroData, featuredFocalX: x, featuredFocalY: y })}
+                onMobileFocalChange={(x, y) => setHeroData({ ...heroData, featuredFocalXMobile: x, featuredFocalYMobile: y })}
                 recommendedDesktop={{ width: 640, height: 360 }}
                 recommendedMobile={{ width: 640, height: 640 }}
                 desktopAspect="16/9"
@@ -922,13 +942,15 @@ function HomeEditor() {
 
         <div className="space-y-6 mb-4">
           {studioImages.map((img, index) => (
-            <div key={index} className="relative">
+            <div key={index} className="space-y-2">
               <ResponsiveImageUploader
                 label={`Studio Image ${index + 1}`}
                 desktopImage={img.image_url}
                 mobileImage={img.image_url_mobile}
-                focalX={img.focal_x ?? 0.5}
-                focalY={img.focal_y ?? 0.5}
+                desktopFocalX={img.focal_x ?? 0.5}
+                desktopFocalY={img.focal_y ?? 0.5}
+                mobileFocalX={img.focal_x_mobile ?? 0.5}
+                mobileFocalY={img.focal_y_mobile ?? 0.5}
                 onDesktopChange={(url) => {
                   const newImages = [...studioImages];
                   newImages[index] = { ...newImages[index], image_url: url };
@@ -939,9 +961,14 @@ function HomeEditor() {
                   newImages[index] = { ...newImages[index], image_url_mobile: url || undefined };
                   setStudioImages(newImages);
                 }}
-                onFocalChange={(x, y) => {
+                onDesktopFocalChange={(x, y) => {
                   const newImages = [...studioImages];
                   newImages[index] = { ...newImages[index], focal_x: x, focal_y: y };
+                  setStudioImages(newImages);
+                }}
+                onMobileFocalChange={(x, y) => {
+                  const newImages = [...studioImages];
+                  newImages[index] = { ...newImages[index], focal_x_mobile: x, focal_y_mobile: y };
                   setStudioImages(newImages);
                 }}
                 recommendedDesktop={{ width: 800, height: 600 }}
@@ -949,19 +976,21 @@ function HomeEditor() {
                 desktopAspect="4/3"
                 mobileAspect="3/4"
               />
-              <button
-                onClick={() => setStudioImages(studioImages.filter((_, i) => i !== index))}
-                className="absolute top-2 right-2 px-3 py-1.5 bg-red-500 text-white hover:bg-red-600 transition-colors text-xs flex items-center gap-1 rounded"
-              >
-                <Trash2 className="w-3 h-3" />
-                Remove
-              </button>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setStudioImages(studioImages.filter((_, i) => i !== index))}
+                  className="px-4 py-2 border-2 border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors font-display uppercase text-xs flex items-center gap-2"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Remove Image
+                </button>
+              </div>
             </div>
           ))}
         </div>
         <button
-          onClick={() => setStudioImages([...studioImages, { image_url: "", focal_x: 0.5, focal_y: 0.5 }])}
-          className="flex items-center gap-2 px-4 py-2 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
+          onClick={() => setStudioImages([...studioImages, { image_url: "", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 }])}
+          className="flex items-center gap-2 px-4 py-2 border-2 border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Image
@@ -1382,7 +1411,7 @@ function MediaLibrary() {
 // Shows Editor
 function ShowsEditor() {
   const { showToast } = useToast();
-  const [shows, setShows] = useState<Array<{ id?: string; video_id: string; thumbnail: string; thumbnail_mobile?: string; focal_x?: number; focal_y?: number; title: string; category: string; order?: number }>>([]);
+  const [shows, setShows] = useState<Array<{ id?: string; video_id: string; thumbnail: string; thumbnail_mobile?: string; focal_x?: number; focal_y?: number; focal_x_mobile?: number; focal_y_mobile?: number; title: string; category: string; order?: number }>>([]);
   const [pageContent, setPageContent] = useState({
     title: "Our Shows",
     subtitle: "Streaming now on YouTube. Click to watch.",
@@ -1453,6 +1482,8 @@ function ShowsEditor() {
         thumbnail_mobile: show.thumbnail_mobile || null,
         focal_x: show.focal_x ?? 0.5,
         focal_y: show.focal_y ?? 0.5,
+        focal_x_mobile: show.focal_x_mobile ?? 0.5,
+        focal_y_mobile: show.focal_y_mobile ?? 0.5,
         title: show.title,
         category: show.category,
         order: index + 1,
@@ -1579,8 +1610,10 @@ function ShowsEditor() {
                   label="Thumbnail"
                   desktopImage={show.thumbnail}
                   mobileImage={show.thumbnail_mobile}
-                  focalX={show.focal_x ?? 0.5}
-                  focalY={show.focal_y ?? 0.5}
+                  desktopFocalX={show.focal_x ?? 0.5}
+                  desktopFocalY={show.focal_y ?? 0.5}
+                  mobileFocalX={show.focal_x_mobile ?? 0.5}
+                  mobileFocalY={show.focal_y_mobile ?? 0.5}
                   onDesktopChange={(url) => {
                     const newShows = [...shows];
                     newShows[index] = { ...newShows[index], thumbnail: url };
@@ -1591,9 +1624,14 @@ function ShowsEditor() {
                     newShows[index] = { ...newShows[index], thumbnail_mobile: url || undefined };
                     setShows(newShows);
                   }}
-                  onFocalChange={(x, y) => {
+                  onDesktopFocalChange={(x, y) => {
                     const newShows = [...shows];
                     newShows[index] = { ...newShows[index], focal_x: x, focal_y: y };
+                    setShows(newShows);
+                  }}
+                  onMobileFocalChange={(x, y) => {
+                    const newShows = [...shows];
+                    newShows[index] = { ...newShows[index], focal_x_mobile: x, focal_y_mobile: y };
                     setShows(newShows);
                   }}
                   recommendedDesktop={{ width: 640, height: 360 }}
@@ -1613,7 +1651,7 @@ function ShowsEditor() {
           ))}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => setShows([...shows, { video_id: "", thumbnail: "", title: "", category: "", focal_x: 0.5, focal_y: 0.5 }])}
+              onClick={() => setShows([...shows, { video_id: "", thumbnail: "", title: "", category: "", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 }])}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 border border-[var(--ink)]/20 hover:bg-[var(--ink)]/5 transition-colors font-display uppercase text-sm rounded"
             >
               <Plus className="w-4 h-4" />

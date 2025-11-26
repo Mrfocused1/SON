@@ -9,12 +9,14 @@ interface VideoCardProps {
   thumbnailMobile?: string | null;
   focalX?: number;
   focalY?: number;
+  focalXMobile?: number;
+  focalYMobile?: number;
   title: string;
   category: string;
   className?: string;
 }
 
-export function VideoCard({ videoId, thumbnail, thumbnailMobile, focalX = 0.5, focalY = 0.5, title, category, className = "" }: VideoCardProps) {
+export function VideoCard({ videoId, thumbnail, thumbnailMobile, focalX = 0.5, focalY = 0.5, focalXMobile = 0.5, focalYMobile = 0.5, title, category, className = "" }: VideoCardProps) {
   const { openVideo } = useVideoModal();
 
   return (
@@ -27,8 +29,10 @@ export function VideoCard({ videoId, thumbnail, thumbnailMobile, focalX = 0.5, f
         <ResponsiveImage
           desktop={thumbnail}
           mobile={thumbnailMobile}
-          focalX={focalX}
-          focalY={focalY}
+          desktopFocalX={focalX}
+          desktopFocalY={focalY}
+          mobileFocalX={focalXMobile}
+          mobileFocalY={focalYMobile}
           alt={title}
           fill
           className="object-cover"

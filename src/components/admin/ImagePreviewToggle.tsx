@@ -6,30 +6,47 @@ import { Monitor, Smartphone } from "lucide-react";
 
 interface ImagePreviewToggleProps {
   desktopImage: string;
-  mobileImage?: string;
-  focalX: number;
-  focalY: number;
+  mobileImage?: string | null;
+  desktopFocalX: number;
+  desktopFocalY: number;
+  mobileFocalX: number;
+  mobileFocalY: number;
   desktopAspect?: string; // e.g., "16/9"
   mobileAspect?: string; // e.g., "9/16"
 }
 
+// Helper to ensure valid number
+const safeNumber = (val: number | undefined | null, defaultVal: number = 0.5): number => {
+  if (typeof val !== 'number' || isNaN(val)) return defaultVal;
+  return Math.max(0, Math.min(1, val));
+};
+
 export function ImagePreviewToggle({
   desktopImage,
   mobileImage,
-  focalX,
-  focalY,
+  desktopFocalX,
+  desktopFocalY,
+  mobileFocalX,
+  mobileFocalY,
   desktopAspect = "16/9",
   mobileAspect = "9/16",
 }: ImagePreviewToggleProps) {
   const [activeView, setActiveView] = useState<"desktop" | "mobile">("desktop");
 
-  const objectPosition = `${focalX * 100}% ${focalY * 100}%`;
-  const currentImage =
-    activeView === "mobile" && mobileImage ? mobileImage : desktopImage;
+  // Ensure focal points are valid
+  const safeDesktopFocalX = safeNumber(desktopFocalX);
+  const safeDesktopFocalY = safeNumber(desktopFocalY);
+  const safeMobileFocalX = safeNumber(mobileFocalX);
+  const safeMobileFocalY = safeNumber(mobileFocalY);
+
+  const desktopObjectPosition = `${safeDesktopFocalX * 100}% ${safeDesktopFocalY * 100}%`;
+  const mobileObjectPosition = `${safeMobileFocalX * 100}% ${safeMobileFocalY * 100}%`;
+
+  const currentMobileImage = mobileImage || desktopImage;
 
   if (!desktopImage) {
     return (
-      <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+      <div className="w-full h-32 bg-[var(--cream)] border-2 border-[var(--ink)]/10 flex items-center justify-center text-[var(--ink)]/40">
         No image to preview
       </div>
     );
@@ -38,14 +55,14 @@ export function ImagePreviewToggle({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Preview</span>
-        <div className="flex bg-gray-100 rounded-lg p-1">
+        <span className="font-display text-sm uppercase text-[var(--ink)]">Preview</span>
+        <div className="flex bg-[var(--cream)] border-2 border-[var(--ink)]/10 p-1">
           <button
             onClick={() => setActiveView("desktop")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors ${
               activeView === "desktop"
-                ? "bg-white text-[var(--ink)] shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-white text-[var(--ink)] shadow-sm border border-[var(--ink)]/10"
+                : "text-[var(--ink)]/50 hover:text-[var(--ink)]"
             }`}
           >
             <Monitor className="w-4 h-4" />
@@ -53,10 +70,10 @@ export function ImagePreviewToggle({
           </button>
           <button
             onClick={() => setActiveView("mobile")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors ${
               activeView === "mobile"
-                ? "bg-white text-[var(--ink)] shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-white text-[var(--ink)] shadow-sm border border-[var(--ink)]/10"
+                : "text-[var(--ink)]/50 hover:text-[var(--ink)]"
             }`}
           >
             <Smartphone className="w-4 h-4" />
@@ -72,9 +89,9 @@ export function ImagePreviewToggle({
             activeView === "desktop" ? "opacity-100 scale-100" : "opacity-50 scale-95"
           }`}
         >
-          <div className="text-xs text-gray-500 text-center mb-1">Desktop (16:9)</div>
+          <div className="text-xs text-[var(--ink)]/50 text-center mb-1 font-display uppercase">Desktop (16:9)</div>
           <div
-            className="relative bg-gray-100 rounded overflow-hidden border-2 border-gray-200"
+            className="relative bg-[var(--cream)] overflow-hidden border-2 border-[var(--ink)]/20"
             style={{ width: "200px", aspectRatio: desktopAspect }}
           >
             <Image
@@ -82,7 +99,7 @@ export function ImagePreviewToggle({
               alt="Desktop preview"
               fill
               className="object-cover"
-              style={{ objectPosition }}
+              style={{ objectPosition: desktopObjectPosition }}
             />
           </div>
         </div>
@@ -93,29 +110,29 @@ export function ImagePreviewToggle({
             activeView === "mobile" ? "opacity-100 scale-100" : "opacity-50 scale-95"
           }`}
         >
-          <div className="text-xs text-gray-500 text-center mb-1">
+          <div className="text-xs text-[var(--ink)]/50 text-center mb-1 font-display uppercase">
             Mobile {mobileImage ? "(Custom)" : "(Cropped)"}
           </div>
           <div
-            className="relative bg-gray-100 rounded overflow-hidden border-2 border-gray-200"
+            className="relative bg-[var(--cream)] overflow-hidden border-2 border-[var(--ink)]/20"
             style={{ width: "80px", aspectRatio: mobileAspect }}
           >
             <Image
-              src={currentImage}
+              src={currentMobileImage}
               alt="Mobile preview"
               fill
               className="object-cover"
-              style={{ objectPosition: mobileImage ? "center" : objectPosition }}
+              style={{ objectPosition: mobileObjectPosition }}
             />
           </div>
         </div>
       </div>
 
-      {activeView === "mobile" && !mobileImage && (
-        <p className="text-xs text-center text-gray-500">
-          Using focal point crop. Upload a mobile image for best results.
-        </p>
-      )}
+      <p className="text-xs text-center text-[var(--ink)]/50">
+        {activeView === "mobile" && !mobileImage
+          ? "Using desktop image with mobile focal point. Upload a mobile image for best results."
+          : "Preview shows how the image will appear on each device."}
+      </p>
     </div>
   );
 }

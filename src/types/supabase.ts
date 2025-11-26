@@ -55,7 +55,18 @@ export interface Database {
           hero_cta_text: string;
           hero_cta_link: string;
           hero_background_image: string;
+          hero_background_image_mobile: string | null;
+          hero_focal_x: number;
+          hero_focal_y: number;
+          hero_focal_x_mobile: number;
+          hero_focal_y_mobile: number;
           featured_video_id: string;
+          featured_video_thumbnail: string;
+          featured_thumbnail_mobile: string | null;
+          featured_focal_x: number;
+          featured_focal_y: number;
+          featured_focal_x_mobile: number;
+          featured_focal_y_mobile: number;
           marquee_items: string[];
           studio_title: string;
           studio_title_accent: string;
@@ -73,7 +84,18 @@ export interface Database {
           hero_cta_text: string;
           hero_cta_link: string;
           hero_background_image: string;
+          hero_background_image_mobile?: string | null;
+          hero_focal_x?: number;
+          hero_focal_y?: number;
+          hero_focal_x_mobile?: number;
+          hero_focal_y_mobile?: number;
           featured_video_id: string;
+          featured_video_thumbnail?: string;
+          featured_thumbnail_mobile?: string | null;
+          featured_focal_x?: number;
+          featured_focal_y?: number;
+          featured_focal_x_mobile?: number;
+          featured_focal_y_mobile?: number;
           marquee_items: string[];
           studio_title: string;
           studio_title_accent: string;
@@ -90,7 +112,18 @@ export interface Database {
           hero_cta_text?: string;
           hero_cta_link?: string;
           hero_background_image?: string;
+          hero_background_image_mobile?: string | null;
+          hero_focal_x?: number;
+          hero_focal_y?: number;
+          hero_focal_x_mobile?: number;
+          hero_focal_y_mobile?: number;
           featured_video_id?: string;
+          featured_video_thumbnail?: string;
+          featured_thumbnail_mobile?: string | null;
+          featured_focal_x?: number;
+          featured_focal_y?: number;
+          featured_focal_x_mobile?: number;
+          featured_focal_y_mobile?: number;
           marquee_items?: string[];
           studio_title?: string;
           studio_title_accent?: string;
@@ -129,6 +162,11 @@ export interface Database {
           id: string;
           video_id: string;
           thumbnail: string;
+          thumbnail_mobile: string | null;
+          focal_x: number;
+          focal_y: number;
+          focal_x_mobile: number;
+          focal_y_mobile: number;
           title: string;
           category: string;
           order: number;
@@ -138,6 +176,11 @@ export interface Database {
           id?: string;
           video_id: string;
           thumbnail: string;
+          thumbnail_mobile?: string | null;
+          focal_x?: number;
+          focal_y?: number;
+          focal_x_mobile?: number;
+          focal_y_mobile?: number;
           title: string;
           category: string;
           order: number;
@@ -146,6 +189,11 @@ export interface Database {
         Update: {
           video_id?: string;
           thumbnail?: string;
+          thumbnail_mobile?: string | null;
+          focal_x?: number;
+          focal_y?: number;
+          focal_x_mobile?: number;
+          focal_y_mobile?: number;
           title?: string;
           category?: string;
           order?: number;
@@ -224,6 +272,11 @@ export interface Database {
         Row: {
           id: string;
           image_url: string;
+          image_url_mobile: string | null;
+          focal_x: number;
+          focal_y: number;
+          focal_x_mobile: number;
+          focal_y_mobile: number;
           alt: string;
           order: number;
           created_at: string;
@@ -231,12 +284,22 @@ export interface Database {
         Insert: {
           id?: string;
           image_url: string;
+          image_url_mobile?: string | null;
+          focal_x?: number;
+          focal_y?: number;
+          focal_x_mobile?: number;
+          focal_y_mobile?: number;
           alt: string;
           order: number;
           created_at?: string;
         };
         Update: {
           image_url?: string;
+          image_url_mobile?: string | null;
+          focal_x?: number;
+          focal_y?: number;
+          focal_x_mobile?: number;
+          focal_y_mobile?: number;
           alt?: string;
           order?: number;
         };

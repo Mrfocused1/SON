@@ -144,7 +144,6 @@ test.describe('Scroll Behavior Investigation', () => {
           exists: true,
           ticker: {
             fps: gsap.ticker.fps,
-            lagSmoothing: gsap.ticker.lagSmoothing(),
           }
         };
       }

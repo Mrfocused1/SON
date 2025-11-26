@@ -31,13 +31,15 @@ type ScrollImage = {
   image_url_mobile?: string | null;
   focal_x?: number;
   focal_y?: number;
+  focal_x_mobile?: number;
+  focal_y_mobile?: number;
 };
 
 const defaultScrollImages: ScrollImage[] = [
-  { image_url: "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
-  { image_url: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
-  { image_url: "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
-  { image_url: "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
+  { image_url: "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
+  { image_url: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
+  { image_url: "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
+  { image_url: "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
 ];
 
 export default function Home() {
@@ -51,11 +53,15 @@ export default function Home() {
     heroBackgroundImageMobile: null as string | null,
     heroFocalX: 0.5,
     heroFocalY: 0.5,
+    heroFocalXMobile: 0.5,
+    heroFocalYMobile: 0.5,
     featuredVideoId: "hSiSKAgO3mM",
     featuredVideoThumbnail: "",
     featuredThumbnailMobile: null as string | null,
     featuredFocalX: 0.5,
     featuredFocalY: 0.5,
+    featuredFocalXMobile: 0.5,
+    featuredFocalYMobile: 0.5,
   });
 
   const [capabilities, setCapabilities] = useState(defaultCapabilities);
@@ -80,11 +86,15 @@ export default function Home() {
             heroBackgroundImageMobile: homeData.hero_background_image_mobile || null,
             heroFocalX: homeData.hero_focal_x ?? 0.5,
             heroFocalY: homeData.hero_focal_y ?? 0.5,
+            heroFocalXMobile: homeData.hero_focal_x_mobile ?? 0.5,
+            heroFocalYMobile: homeData.hero_focal_y_mobile ?? 0.5,
             featuredVideoId: homeData.featured_video_id || "hSiSKAgO3mM",
             featuredVideoThumbnail: homeData.featured_video_thumbnail || "",
             featuredThumbnailMobile: homeData.featured_thumbnail_mobile || null,
             featuredFocalX: homeData.featured_focal_x ?? 0.5,
             featuredFocalY: homeData.featured_focal_y ?? 0.5,
+            featuredFocalXMobile: homeData.featured_focal_x_mobile ?? 0.5,
+            featuredFocalYMobile: homeData.featured_focal_y_mobile ?? 0.5,
           });
         }
 
@@ -114,6 +124,8 @@ export default function Home() {
             image_url_mobile: img.image_url_mobile,
             focal_x: img.focal_x ?? 0.5,
             focal_y: img.focal_y ?? 0.5,
+            focal_x_mobile: img.focal_x_mobile ?? 0.5,
+            focal_y_mobile: img.focal_y_mobile ?? 0.5,
           })));
         }
       } catch (error) {
@@ -146,8 +158,10 @@ export default function Home() {
             <ResponsiveImage
               desktop={homeContent.heroBackgroundImage || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"}
               mobile={homeContent.heroBackgroundImageMobile}
-              focalX={homeContent.heroFocalX}
-              focalY={homeContent.heroFocalY}
+              desktopFocalX={homeContent.heroFocalX}
+              desktopFocalY={homeContent.heroFocalY}
+              mobileFocalX={homeContent.heroFocalXMobile}
+              mobileFocalY={homeContent.heroFocalYMobile}
               alt="Hero background"
               fill
               className="object-cover"
@@ -182,8 +196,10 @@ export default function Home() {
             <ResponsiveImage
               desktop={homeContent.featuredVideoThumbnail || `https://img.youtube.com/vi/${homeContent.featuredVideoId}/maxresdefault.jpg`}
               mobile={homeContent.featuredThumbnailMobile}
-              focalX={homeContent.featuredFocalX}
-              focalY={homeContent.featuredFocalY}
+              desktopFocalX={homeContent.featuredFocalX}
+              desktopFocalY={homeContent.featuredFocalY}
+              mobileFocalX={homeContent.featuredFocalXMobile}
+              mobileFocalY={homeContent.featuredFocalYMobile}
               alt="Featured Video"
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
@@ -278,15 +294,19 @@ export default function Home() {
             <div className="relative h-64 overflow-hidden border-2 border-[var(--ink)] bg-white marquee-container flex items-center animate-scale-up">
               <Marquee speed={12} className="gap-4 px-4">
                 {scrollImages.map((img, index) => (
-                  <Image
-                    key={index}
-                    src={img.image_url}
-                    alt={`Studio image ${index + 1}`}
-                    width={192}
-                    height={192}
-                    className="h-48 w-48 object-cover border border-[var(--ink)]"
-                    style={{ objectPosition: `${(img.focal_x ?? 0.5) * 100}% ${(img.focal_y ?? 0.5) * 100}%` }}
-                  />
+                  <div key={index} className="relative h-48 w-48 border border-[var(--ink)] flex-shrink-0">
+                    <ResponsiveImage
+                      desktop={img.image_url}
+                      mobile={img.image_url_mobile}
+                      desktopFocalX={img.focal_x}
+                      desktopFocalY={img.focal_y}
+                      mobileFocalX={img.focal_x_mobile}
+                      mobileFocalY={img.focal_y_mobile}
+                      alt={`Studio image ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 ))}
               </Marquee>
             </div>
