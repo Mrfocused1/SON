@@ -43,8 +43,11 @@ export function ScrollAnimations() {
       return;
     }
 
-    // Immediate setup - no delay needed, animations are non-blocking
-    const ctx = gsap.context(() => {
+    // Defer animation setup significantly to avoid blocking initial scroll
+    // Use requestIdleCallback for best performance, setTimeout as fallback
+    let ctx: gsap.Context;
+    const setupCallback = () => {
+    ctx = gsap.context(() => {
       // Animate once per page visit - plays when scrolled into view, stays visible after
 
       // Fade up animations for headings
@@ -208,10 +211,23 @@ export function ScrollAnimations() {
       });
     });
 
-    // Refresh ScrollTrigger after all animations are set
+    // Refresh ScrollTrigger
     ScrollTrigger.refresh();
+    };
 
-    return () => ctx.revert();
+    // Use requestIdleCallback if available, otherwise setTimeout
+    const setupTimer = 'requestIdleCallback' in window
+      ? requestIdleCallback(setupCallback, { timeout: 500 })
+      : setTimeout(setupCallback, 100);
+
+    return () => {
+      if ('requestIdleCallback' in window) {
+        cancelIdleCallback(setupTimer as number);
+      } else {
+        clearTimeout(setupTimer as number);
+      }
+      if (ctx) ctx.revert();
+    };
   }, [isLoading, pathname, isMobile]);
 
   return null;

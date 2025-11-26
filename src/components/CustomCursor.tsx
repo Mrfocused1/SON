@@ -15,9 +15,14 @@ export function CustomCursor() {
 
     if (!cursorDot || !cursorLabel) return;
 
+    let rafId: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.1 });
-      gsap.to(cursorLabel, { x: e.clientX, y: e.clientY, duration: 0.15 });
+      if (rafId) return; // Skip if animation frame already requested
+      rafId = requestAnimationFrame(() => {
+        gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        gsap.to(cursorLabel, { x: e.clientX, y: e.clientY, duration: 0.15 });
+        rafId = null;
+      });
     };
 
     const handleMouseEnter = (e: Event) => {
@@ -52,8 +57,13 @@ export function CustomCursor() {
     setupInteractiveElements();
 
     // Setup MutationObserver to handle dynamically added elements
+    // Throttle to prevent excessive re-scans
+    let observerTimeout: NodeJS.Timeout | null = null;
     const observer = new MutationObserver(() => {
-      setupInteractiveElements();
+      if (observerTimeout) clearTimeout(observerTimeout);
+      observerTimeout = setTimeout(() => {
+        setupInteractiveElements();
+      }, 100);
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
@@ -61,6 +71,8 @@ export function CustomCursor() {
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       observer.disconnect();
+      if (observerTimeout) clearTimeout(observerTimeout);
+      if (rafId) cancelAnimationFrame(rafId);
 
       const interactiveElements = document.querySelectorAll("[data-cursor]");
       interactiveElements.forEach((el) => {
