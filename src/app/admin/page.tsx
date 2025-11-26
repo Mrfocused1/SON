@@ -896,7 +896,7 @@ function HomeEditor() {
             onMobileFocalChange={(x, y) => setHeroData({ ...heroData, heroFocalXMobile: x, heroFocalYMobile: y })}
             recommendedDesktop={{ width: 1920, height: 1080 }}
             recommendedMobile={{ width: 750, height: 1334 }}
-            desktopAspect="16/9"
+            desktopAspect="8/5"
             mobileAspect="9/16"
           />
         </div>
@@ -925,7 +925,7 @@ function HomeEditor() {
                 onMobileFocalChange={(x, y) => setHeroData({ ...heroData, featuredFocalXMobile: x, featuredFocalYMobile: y })}
                 recommendedDesktop={{ width: 640, height: 360 }}
                 recommendedMobile={{ width: 640, height: 640 }}
-                desktopAspect="16/9"
+                desktopAspect="3/4"
                 mobileAspect="1/1"
               />
             </div>
@@ -973,8 +973,8 @@ function HomeEditor() {
                 }}
                 recommendedDesktop={{ width: 800, height: 600 }}
                 recommendedMobile={{ width: 600, height: 800 }}
-                desktopAspect="4/3"
-                mobileAspect="3/4"
+                desktopAspect="1/1"
+                mobileAspect="1/1"
               />
               <div className="flex justify-end">
                 <button
@@ -1634,9 +1634,9 @@ function ShowsEditor() {
                     newShows[index] = { ...newShows[index], focal_x_mobile: x, focal_y_mobile: y };
                     setShows(newShows);
                   }}
-                  recommendedDesktop={{ width: 640, height: 360 }}
+                  recommendedDesktop={{ width: 640, height: 640 }}
                   recommendedMobile={{ width: 640, height: 640 }}
-                  desktopAspect="16/9"
+                  desktopAspect="1/1"
                   mobileAspect="1/1"
                 />
               </div>

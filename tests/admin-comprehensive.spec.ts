@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Admin Panel Comprehensive Testing', () => {
 
   test('Featured Video Thumbnail - Upload and Save', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Home Page section
@@ -74,7 +74,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Home Page - Hero Section', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Home Page
@@ -93,7 +93,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Home Page - Marquee Items', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     const homeTab = page.locator('text=Home Page');
@@ -121,7 +121,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Home Page - Capabilities Section', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     const homeTab = page.locator('text=Home Page');
@@ -141,7 +141,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Home Page - Studio Images', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     const homeTab = page.locator('text=Home Page');
@@ -161,7 +161,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Shows Page - Add/Edit Show', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Shows
@@ -183,7 +183,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Join Page - Roles Management', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Join Page
@@ -205,7 +205,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Contact Page - Edit Content', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Contact Page
@@ -219,7 +219,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Navigation - Add/Edit Nav Items', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Navigation
@@ -233,7 +233,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
   });
 
   test('Footer & Socials - Manage Social Links', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Footer & Socials
@@ -248,7 +248,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
 
   test('Database Verification - Featured Video Thumbnail Saved', async ({ page }) => {
     // This test will verify the thumbnail was actually saved to the database
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Navigate to Home Page

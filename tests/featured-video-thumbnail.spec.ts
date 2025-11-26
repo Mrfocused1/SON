@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Featured Video Thumbnail Fix Verification', () => {
 
   test('Featured Video Thumbnail Upload and Save', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
@@ -109,7 +109,7 @@ test.describe('Featured Video Thumbnail Fix Verification', () => {
     console.log('Expected: The column should exist and contain the thumbnail URL');
 
     // For now, just verify the admin page loads and shows the field
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     const homeButton = page.getByRole('button', { name: 'Home Page' });

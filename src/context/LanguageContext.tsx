@@ -12,8 +12,8 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // French as default
-  const [language, setLanguageState] = useState<Language>("fr");
+  // English as default
+  const [language, setLanguageState] = useState<Language>("en");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -31,11 +31,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const t = translations[language];
 
-  // Prevent hydration mismatch by using French as SSR default
+  // Prevent hydration mismatch by using English as SSR default
   const contextValue: LanguageContextType = {
-    language: mounted ? language : "fr",
+    language: mounted ? language : "en",
     setLanguage,
-    t: mounted ? t : translations.fr,
+    t: mounted ? t : translations.en,
   };
 
   return (

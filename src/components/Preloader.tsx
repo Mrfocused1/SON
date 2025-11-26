@@ -6,7 +6,7 @@ import { usePreloader } from "@/context/PreloaderContext";
 
 export function Preloader() {
   const preloaderRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(true);
   const { setIsLoading } = usePreloader();
 
@@ -62,16 +62,18 @@ export function Preloader() {
       ref={preloaderRef}
       className="fixed inset-0 bg-[#111111] z-[10001] flex items-center justify-center overflow-hidden pointer-events-none"
     >
-      <h1
+      <div
         ref={textRef}
         className="font-display text-[15vw] md:text-[12vw] leading-none whitespace-nowrap uppercase tracking-tight"
         style={{
           WebkitTextStroke: "2px #333",
           color: "transparent",
         }}
+        role="img"
+        aria-label="SON Networks"
       >
         SON NETWORKS
-      </h1>
+      </div>
     </div>
   );
 }

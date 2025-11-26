@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Admin Page Save Functionality', () => {
   test('Admin page loads and save button shows toast', async ({ page }) => {
     // Go to admin page on live site
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
 
     // Take screenshot of initial state
     await page.screenshot({ path: 'test-results/admin-initial.png', fullPage: true });
@@ -51,7 +51,7 @@ test.describe('Admin Page Save Functionality', () => {
   });
 
   test('Home section save button works', async ({ page }) => {
-    await page.goto('https://sonnetworks.site/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
     // Make sure Home Page section is selected (should be default)
