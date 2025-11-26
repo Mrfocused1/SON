@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scroll Diagnostic</title>
+  <style>
+    body {
+      height: 3000px;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #log {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.9);
+      color: lime;
+      padding: 20px;
+      width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      font-size: 12px;
+      z-index: 99999;
+    }
+    .warning { color: yellow; }
+    .error { color: red; }
+    .success { color: lime; }
+  </style>
+</head>
+<body>
+  <h1>Scroll Diagnostic Tool</h1>
+  <p>Try scrolling and watch the log panel...</p>
+
+  <div id="log"></div>
+
+  <script>
+    const log = document.getElementById('log');
+    function addLog(message, type = 'normal') {
+      const entry = document.createElement('div');
+      entry.className = type;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      log.insertBefore(entry, log.firstChild);
+    }
+
+    // Detect wheel events
+    let wheelCount = 0;
+    let lastWheelTime = 0;
+    document.addEventListener('wheel', (e) => {
+      wheelCount++;
+      const now = performance.now();
+      const delay = lastWheelTime ? (now - lastWheelTime).toFixed(2) : 0;
+      lastWheelTime = now;
+
+      addLog(`WHEEL #${wheelCount} - deltaY: ${e.deltaY.toFixed(0)}, delay: ${delay}ms, prevented: ${e.defaultPrevented}`,
+        e.defaultPrevented ? 'warning' : 'success');
+    }, { passive: false, capture: true });
+
+    // Detect scroll events
+    let scrollCount = 0;
+    let lastScrollTime = 0;
+    window.addEventListener('scroll', () => {
+      scrollCount++;
+      const now = performance.now();
+      const delay = lastScrollTime ? (now - lastScrollTime).toFixed(2) : 0;
+      lastScrollTime = now;
+
+      addLog(`SCROLL #${scrollCount} - scrollY: ${window.scrollY}, delay: ${delay}ms`, 'normal');
+    }, { passive: true, capture: true });
+
+    // Check for blocking scripts
+    addLog('=== INITIALIZATION ===', 'success');
+    addLog(`User Agent: ${navigator.userAgent}`, 'normal');
+
+    // Check computed styles
+    const htmlStyles = window.getComputedStyle(document.documentElement);
+    const bodyStyles = window.getComputedStyle(document.body);
+
+    addLog(`html scroll-behavior: ${htmlStyles.scrollBehavior}`,
+      htmlStyles.scrollBehavior !== 'auto' ? 'warning' : 'success');
+    addLog(`body scroll-behavior: ${bodyStyles.scrollBehavior}`,
+      bodyStyles.scrollBehavior !== 'auto' ? 'warning' : 'success');
+    addLog(`html overscroll-behavior: ${htmlStyles.overscrollBehavior}`, 'normal');
+    addLog(`body overscroll-behavior: ${bodyStyles.overscrollBehavior}`, 'normal');
+
+    // Monitor for long tasks
+    if ('PerformanceObserver' in window) {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.duration > 50) {
+              addLog(`LONG TASK: ${entry.duration.toFixed(0)}ms`, 'error');
+            }
+          }
+        });
+        observer.observe({ entryTypes: ['longtask'] });
+        addLog('Long task monitoring enabled', 'success');
+      } catch (e) {
+        addLog('Long task monitoring not available', 'warning');
+      }
+    }
+
+    addLog('Scroll diagnostic ready - try scrolling!', 'success');
+  </script>
+</body>
+</html>

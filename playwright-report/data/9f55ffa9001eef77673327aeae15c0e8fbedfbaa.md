@@ -3,6 +3,8 @@
 ```yaml
 - generic [active] [ref=e1]:
   - generic:
+    - heading "SON NETWORKS" [level=1]
+  - generic:
     - button:
       - img
   - navigation [ref=e2]:
