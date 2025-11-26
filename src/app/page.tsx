@@ -47,6 +47,7 @@ export default function Home() {
     featuredFocalY: 0.5,
     featuredFocalXMobile: 0.5,
     featuredFocalYMobile: 0.5,
+    marqueeItems: [] as string[],
   });
 
   const [capabilities, setCapabilities] = useState(defaultCapabilities);
@@ -79,6 +80,7 @@ export default function Home() {
             featuredFocalY: homeData.featured_focal_y ?? 0.5,
             featuredFocalXMobile: homeData.featured_focal_x_mobile ?? 0.5,
             featuredFocalYMobile: homeData.featured_focal_y_mobile ?? 0.5,
+            marqueeItems: homeData.marquee_items || [],
           });
         }
 
@@ -110,7 +112,7 @@ export default function Home() {
         {/* Top Marquee */}
         <div className="grid-b-border py-3 bg-[var(--tv-red)] overflow-hidden">
           <Marquee speed={10} className="whitespace-nowrap font-display text-lg md:text-xl uppercase tracking-widest text-white">
-            {[t.marquee.production, t.marquee.series, t.marquee.brand, t.marquee.viral].map((item, index) => (
+            {(homeContent.marqueeItems.length > 0 ? homeContent.marqueeItems : [t.marquee.production, t.marquee.series, t.marquee.brand, t.marquee.viral]).map((item, index) => (
               <span key={index}>
                 <span className="mx-4">{item}</span> •{" "}
               </span>

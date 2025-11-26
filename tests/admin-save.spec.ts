@@ -55,7 +55,7 @@ test.describe('Admin Page Save Functionality', () => {
     await page.waitForLoadState('networkidle');
 
     // Make sure Home Page section is selected (should be default)
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
     }

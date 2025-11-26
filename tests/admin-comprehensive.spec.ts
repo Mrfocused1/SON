@@ -7,7 +7,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate to Home Page section
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
       await page.waitForTimeout(500);
@@ -17,11 +17,11 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.screenshot({ path: 'test-results/thumbnail-initial.png', fullPage: true });
 
     // Scroll to Featured Video section
-    await page.evaluate(() => {
-      const section = document.querySelector('h4:has-text("Featured Video")');
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
-    await page.waitForTimeout(500);
+    const featuredSection = page.getByText('Featured Video', { exact: false }).first();
+    if (await featuredSection.isVisible()) {
+      await featuredSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+    }
 
     // Take screenshot of featured video section
     await page.screenshot({ path: 'test-results/thumbnail-section.png', fullPage: true });
@@ -78,7 +78,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate to Home Page
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
       await page.waitForTimeout(500);
@@ -96,18 +96,18 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
       await page.waitForTimeout(500);
     }
 
     // Scroll to marquee section
-    await page.evaluate(() => {
-      const section = document.querySelector('h3:has-text("Marquee")');
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
-    await page.waitForTimeout(500);
+    const marqueeSection = page.getByText('Marquee Text', { exact: false }).first();
+    if (await marqueeSection.isVisible()) {
+      await marqueeSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+    }
 
     await page.screenshot({ path: 'test-results/home-marquee.png', fullPage: true });
 
@@ -124,18 +124,18 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
       await page.waitForTimeout(500);
     }
 
     // Scroll to capabilities
-    await page.evaluate(() => {
-      const section = document.querySelector('h3:has-text("Capabilities")');
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
-    await page.waitForTimeout(500);
+    const capabilitiesSection = page.getByText('Capabilities', { exact: false }).first();
+    if (await capabilitiesSection.isVisible()) {
+      await capabilitiesSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+    }
 
     await page.screenshot({ path: 'test-results/home-capabilities.png', fullPage: true });
   });
@@ -144,18 +144,18 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.goto('/admin');
     await page.waitForLoadState('networkidle');
 
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
       await page.waitForTimeout(500);
     }
 
     // Scroll to studio images
-    await page.evaluate(() => {
-      const section = document.querySelector('h3:has-text("Studio")');
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
-    await page.waitForTimeout(500);
+    const studioSection = page.getByText('Studio Images', { exact: false }).first();
+    if (await studioSection.isVisible()) {
+      await studioSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+    }
 
     await page.screenshot({ path: 'test-results/home-studio-images.png', fullPage: true });
   });
@@ -165,7 +165,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate to Shows
-    const showsTab = page.locator('text=Shows');
+    const showsTab = page.getByRole('button', { name: 'Shows' });
     if (await showsTab.isVisible()) {
       await showsTab.click();
       await page.waitForTimeout(1000);
@@ -209,7 +209,7 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate to Contact Page
-    const contactTab = page.locator('text=Contact');
+    const contactTab = page.getByRole('button', { name: 'Contact Page' });
     if (await contactTab.isVisible()) {
       await contactTab.click();
       await page.waitForTimeout(1000);
@@ -252,18 +252,18 @@ test.describe('Admin Panel Comprehensive Testing', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate to Home Page
-    const homeTab = page.locator('text=Home Page');
+    const homeTab = page.getByRole('button', { name: 'Home Page' });
     if (await homeTab.isVisible()) {
       await homeTab.click();
       await page.waitForTimeout(500);
     }
 
     // Scroll to Featured Video section
-    await page.evaluate(() => {
-      const section = document.querySelector('h4:has-text("Featured Video")');
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
-    await page.waitForTimeout(500);
+    const featuredSection = page.getByText('Featured Video', { exact: false }).first();
+    if (await featuredSection.isVisible()) {
+      await featuredSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+    }
 
     // Check if there's a thumbnail value in the input
     const thumbnailInputs = await page.locator('input[type="text"]').all();

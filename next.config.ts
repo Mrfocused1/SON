@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "youtu.be",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "www.transparenttextures.com",
         pathname: "/**",
       },

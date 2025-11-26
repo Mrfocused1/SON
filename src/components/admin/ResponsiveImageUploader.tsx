@@ -19,8 +19,8 @@ interface ResponsiveImageUploaderProps {
   onMobileChange: (url: string | null) => void;
   onDesktopFocalChange: (x: number, y: number) => void;
   onMobileFocalChange: (x: number, y: number) => void;
-  recommendedDesktop: { width: number; height: number };
-  recommendedMobile: { width: number; height: number };
+  recommendedDesktop?: { width: number; height: number };
+  recommendedMobile?: { width: number; height: number };
   desktopAspect?: string;
   mobileAspect?: string;
 }
@@ -37,8 +37,8 @@ export function ResponsiveImageUploader({
   onMobileChange,
   onDesktopFocalChange,
   onMobileFocalChange,
-  recommendedDesktop,
-  recommendedMobile,
+  recommendedDesktop = { width: 1920, height: 1080 },
+  recommendedMobile = { width: 1080, height: 1920 },
   desktopAspect = "16/9",
   mobileAspect = "9/16",
 }: ResponsiveImageUploaderProps) {
