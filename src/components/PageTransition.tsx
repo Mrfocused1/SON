@@ -5,7 +5,7 @@ import { useTransition } from "@/context/TransitionContext";
 import gsap from "gsap";
 
 export function PageTransition() {
-  const { isTransitioning, completeTransition } = useTransition();
+  const { isTransitioning, completeTransition, finishTransition } = useTransition();
   const transitionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const isAnimating = useRef(false);
@@ -44,10 +44,11 @@ export function PageTransition() {
           onComplete: () => {
             setIsVisible(false);
             isAnimating.current = false;
+            finishTransition();
           },
         });
     }
-  }, [isTransitioning, completeTransition]);
+  }, [isTransitioning, completeTransition, finishTransition]);
 
   if (!isVisible) return null;
 

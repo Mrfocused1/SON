@@ -7,6 +7,7 @@ interface TransitionContextType {
   isTransitioning: boolean;
   navigateTo: (href: string) => void;
   completeTransition: () => void;
+  finishTransition: () => void;
 }
 
 const TransitionContext = createContext<TransitionContextType | undefined>(undefined);
@@ -36,10 +37,11 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <TransitionContext.Provider value={{ 
-      isTransitioning, 
-      navigateTo, 
+    <TransitionContext.Provider value={{
+      isTransitioning,
+      navigateTo,
       completeTransition,
+      finishTransition,
     }}>
       {children}
     </TransitionContext.Provider>
