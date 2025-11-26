@@ -25,6 +25,13 @@ export function ScrollAnimations() {
     // Kill all existing ScrollTriggers on route change
     ScrollTrigger.getAll().forEach(trigger => trigger.kill());
 
+    // Configure ScrollTrigger to prevent scroll interference
+    ScrollTrigger.config({
+      autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+      ignoreMobileResize: true,
+      limitCallbacks: true
+    });
+
     // On mobile, skip all GSAP animations to prevent scroll issues
     if (isMobile) {
       // Just make all animated elements visible without any GSAP
@@ -55,6 +62,7 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -73,6 +81,7 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -92,6 +101,7 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -111,6 +121,7 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -130,6 +141,7 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -151,6 +163,7 @@ export function ScrollAnimations() {
               trigger: container,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -170,6 +183,7 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 90%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
@@ -188,11 +202,15 @@ export function ScrollAnimations() {
               trigger: el,
               start: "top 85%",
               toggleActions: "play none none none",
+              once: true,
             },
           }
         );
       });
     });
+
+    // Refresh ScrollTrigger after all animations are set
+    ScrollTrigger.refresh();
 
     return () => ctx.revert();
     }, 100);
