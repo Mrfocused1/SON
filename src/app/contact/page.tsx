@@ -228,9 +228,6 @@ export default function ContactPage() {
                 <span className="block font-display text-2xl uppercase leading-none">
                   SON Networks
                 </span>
-                <span className="font-sans font-bold text-sm opacity-80">
-                  Los Angeles, CA
-                </span>
               </div>
             </div>
             <p className="font-sans text-xs font-bold opacity-60">
