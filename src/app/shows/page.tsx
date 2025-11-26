@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { VideoCard } from "@/components/VideoCard";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Default fallback data
 const defaultVideos = [
@@ -27,10 +28,11 @@ const defaultVideos = [
 ];
 
 export default function ShowsPage() {
+  const { t } = useLanguage();
   const [videos, setVideos] = useState(defaultVideos);
   const [pageContent, setPageContent] = useState({
-    title: "Our Shows",
-    subtitle: "Streaming now on YouTube. Click to watch.",
+    title: "",
+    subtitle: "",
   });
 
   useEffect(() => {
@@ -79,10 +81,10 @@ export default function ShowsPage() {
     <div className="bg-[var(--ink)] min-h-screen text-[var(--cream)] overflow-x-hidden">
       <div className="p-6 md:p-12 border-b-2 border-[var(--cream)]/20">
         <h1 className="font-display text-[10vw] uppercase leading-none text-[var(--tv-red)] animate-fade-up">
-          {pageContent.title}
+          {pageContent.title || t.shows.title}
         </h1>
         <p className="font-sans text-xl md:text-2xl mt-4 max-w-2xl animate-fade-up">
-          {pageContent.subtitle}
+          {pageContent.subtitle || t.shows.subtitle}
         </p>
       </div>
 
@@ -98,10 +100,10 @@ export default function ShowsPage() {
           onClick={() => window.open("https://www.youtube.com/sonnetworks", "_blank")}
         >
           <h3 className="font-display text-6xl text-[var(--cream)] uppercase leading-none mb-4 group-hover:scale-110 transition-transform">
-            More On<br />YouTube
+            {t.shows.watchNow}<br />YouTube
           </h3>
           <div className="bg-[var(--ink)] text-[var(--cream)] px-6 py-2 font-display text-xl uppercase rounded-full">
-            Subscribe
+            {t.footer.followUs}
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Users, Lightbulb, Rocket } from "lucide-react";
 import { useVideoModal } from "@/context/VideoModalContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Marquee } from "@/components/Marquee";
 import { supabase } from "@/lib/supabase";
 
@@ -33,6 +34,7 @@ const defaultScrollImages = [
 
 export default function Home() {
   const { openVideo } = useVideoModal();
+  const { t } = useLanguage();
 
   // State for dynamic content from Supabase
   const [homeContent, setHomeContent] = useState({
@@ -179,11 +181,11 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-between p-8 z-10">
               <div className="flex justify-between items-start text-[var(--cream)]">
-                <span className="font-display text-2xl">FEATURED</span>
+                <span className="font-display text-2xl">{t.featured.label}</span>
                 <ArrowUpRight className="w-8 h-8" />
               </div>
-              <h2 className="font-display text-6xl text-[var(--cream)] leading-none group-hover:translate-x-2 transition-transform drop-shadow-lg">
-                WATCH<br />NOW
+              <h2 className="font-display text-6xl text-[var(--cream)] leading-none group-hover:translate-x-2 transition-transform drop-shadow-lg whitespace-pre-line">
+                {t.featured.watchNow.split(" ").join("\n")}
               </h2>
             </div>
           </div>
@@ -195,15 +197,14 @@ export default function Home() {
         <div className="p-12 md:p-24 border-b-2 md:border-b-0 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-between animate-slide-left">
           <div>
             <span className="font-bold uppercase tracking-widest text-[var(--tv-red)] mb-4 block animate-fade-up">
-              Capabilities
+              {t.capabilities.create}
             </span>
             <h2 className="font-display text-6xl uppercase leading-none animate-fade-up">
-              We Build<br />
-              <span className="text-[var(--tv-red)]">Universes.</span>
+              {t.capabilities.collaborate}<br />
+              <span className="text-[var(--tv-red)]">{t.capabilities.innovate}</span>
             </h2>
             <p className="text-xl mt-8 font-medium max-w-md animate-fade-up">
-              From 15-second spots to full-length features, we handle every frame
-              with obsessive attention to detail.
+              {t.capabilities.createDesc}
             </p>
           </div>
           <div className="mt-12 animate-pop">
@@ -211,7 +212,7 @@ export default function Home() {
               href="/contact"
               className="inline-block border-b-2 border-[var(--ink)] text-xl font-display uppercase hover:text-[var(--tv-red)] hover:border-[var(--tv-red)] transition-colors"
             >
-              Start A Project
+              {t.nav.contactUs}
             </Link>
           </div>
         </div>
@@ -245,7 +246,7 @@ export default function Home() {
       <section className="grid-b-border bg-[var(--cream)] py-24 overflow-hidden relative">
         <div className="container mx-auto px-6 relative z-10">
           <span className="font-bold uppercase tracking-widest text-[var(--tv-red)] mb-4 block animate-fade-up">
-            The Studio
+            {t.studio.title}
           </span>
           <h2 className="font-display text-[10vw] leading-none uppercase text-[var(--ink)] mb-12 animate-fade-up">
             {homeContent.studioTitle}<br />{homeContent.studioTitleAccent.split(" ")[0]} <span className="stroke-text">{homeContent.studioTitleAccent.split(" ").slice(1).join(" ") || homeContent.studioTitleAccent}</span>
@@ -293,7 +294,7 @@ export default function Home() {
           </div>
           <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 z-20 pointer-events-none">
             <span className="bg-[var(--tv-red)] text-white px-3 py-1 font-display text-sm uppercase w-max mb-4 animate-pop">
-              Trending
+              {t.shows.trending}
             </span>
             <h3 className="font-display text-5xl md:text-8xl text-[var(--cream)] mix-blend-difference uppercase leading-none animate-fade-up">
               Behind<br />The Scenes
@@ -305,10 +306,10 @@ export default function Home() {
           className="col-span-1 bg-[var(--tv-red)] p-8 md:p-12 flex flex-col justify-center items-center text-center relative overflow-hidden group cursor-pointer min-h-[300px] animate-slide-right"
         >
           <h3 className="font-display text-6xl text-[var(--cream)] mb-2 scale-up animate-fade-up">
-            More<br />Shows
+            {t.nav.shows}
           </h3>
           <div className="mt-8 border-2 border-[var(--ink)] bg-[var(--cream)] text-[var(--ink)] px-6 py-2 font-display text-lg uppercase transform group-hover:-rotate-3 transition-transform animate-pop">
-            View All
+            {t.common.learnMore}
           </div>
         </Link>
       </section>
@@ -328,10 +329,10 @@ export default function Home() {
       <section className="bg-[var(--cream)]">
         <div className="grid grid-cols-2 md:grid-cols-4 animate-stagger">
           {[
-            { title: "Latest Videos", href: "/shows" },
-            { title: "Behind The Scenes", href: "/shows" },
-            { title: "Join The Network", href: "/join" },
-            { title: "Get In Touch", href: "/contact" },
+            { title: t.nav.shows, href: "/shows" },
+            { title: t.shows.trending, href: "/shows" },
+            { title: t.nav.joinUs, href: "/join" },
+            { title: t.nav.contactUs, href: "/contact" },
           ].map((item, index) => (
             <Link
               key={item.title}

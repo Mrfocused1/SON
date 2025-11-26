@@ -4,48 +4,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-
-// Default fallback nav links
-const defaultNavLinks = [
-  { href: "/", label: "Home" },
-  { href: "/shows", label: "Shows" },
-  { href: "/join", label: "Join Us" },
-  { href: "/contact", label: "Contact Us" },
-];
+import { useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [navLinks, setNavLinks] = useState(defaultNavLinks);
+  const { t } = useLanguage();
 
-  // Load navigation links from Supabase
-  useEffect(() => {
-    async function loadNavigation() {
-      if (!supabase) return;
-
-      try {
-        const { data: navData } = await supabase
-          .from("navigation")
-          .select("*")
-          .order("order", { ascending: true });
-
-        if (navData && navData.length > 0) {
-          setNavLinks(
-            navData.map((nav) => ({
-              href: nav.href,
-              label: nav.label,
-            }))
-          );
-        }
-      } catch (error) {
-        console.error("Error loading navigation:", error);
-      }
-    }
-
-    loadNavigation();
-  }, []);
+  // Navigation links with translations
+  const navLinks = [
+    { href: "/", label: t.nav.home },
+    { href: "/shows", label: t.nav.shows },
+    { href: "/join", label: t.nav.joinUs },
+    { href: "/contact", label: t.nav.contactUs },
+  ];
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-[var(--cream)] grid-b-border">
@@ -66,7 +40,7 @@ export function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex flex-1 justify-end items-stretch">
-          {navLinks.map((link, index) => {
+          {navLinks.map((link) => {
             const isActive = pathname === link.href;
             const isContact = link.href === "/contact";
 
@@ -74,9 +48,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-8 flex items-center font-display text-xl uppercase transition-colors ${
-                  index < navLinks.length - 1 ? "grid-r-border" : ""
-                } ${
+                className={`px-8 flex items-center font-display text-xl uppercase transition-colors grid-r-border ${
                   isContact
                     ? "hover:bg-[var(--tv-red)] hover:text-[var(--cream)]"
                     : "hover:bg-[var(--ink)] hover:text-[var(--cream)]"
@@ -92,6 +64,10 @@ export function Navbar() {
               </Link>
             );
           })}
+          {/* Language Switcher */}
+          <div className="px-4 flex items-center">
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -116,6 +92,10 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          {/* Mobile Language Switcher */}
+          <div className="px-6 py-4 border-b border-gray-800">
+            <LanguageSwitcher />
+          </div>
         </div>
       )}
     </nav>

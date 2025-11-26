@@ -9,6 +9,7 @@ import { Preloader } from "@/components/Preloader";
 import { ScrollAnimations } from "@/components/ScrollAnimations";
 import { VideoModalProvider } from "@/context/VideoModalContext";
 import { PreloaderProvider } from "@/context/PreloaderContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -40,10 +41,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body className={`${inter.variable} ${anton.variable} font-sans antialiased`}>
-        <PreloaderProvider>
-          <VideoModalProvider>
+        <LanguageProvider>
+          <PreloaderProvider>
+            <VideoModalProvider>
             <Preloader />
             <ScrollAnimations />
             <CustomCursor />
@@ -53,8 +55,9 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
-          </VideoModalProvider>
-        </PreloaderProvider>
+            </VideoModalProvider>
+          </PreloaderProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

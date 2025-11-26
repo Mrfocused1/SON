@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Youtube, Instagram, Twitter, Link as LinkIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Icon mapping for social links
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -33,13 +34,14 @@ const defaultSocialLinks = [
 ];
 
 export default function ContactPage() {
+  const { t } = useLanguage();
   const [socialLinks, setSocialLinks] = useState<Array<{ href: string; label: string; icon: React.ComponentType<{ className?: string }> }>>
 (defaultSocialLinks);
   const [pageContent, setPageContent] = useState({
-    formTitle: "Hit Us Up",
-    infoTitle: "Let's",
-    infoTitleAccent: "Talk.",
-    infoSubtitle: "Whether you're a brand looking to collaborate, a creator wanting to join, or just want to say hi.",
+    formTitle: "",
+    infoTitle: "",
+    infoTitleAccent: "",
+    infoSubtitle: "",
     contactEmail: "hello@sonnetworks.com",
   });
   const [formData, setFormData] = useState({
@@ -127,11 +129,11 @@ export default function ContactPage() {
       <div className="bg-[var(--tv-red)] min-h-screen text-[var(--ink)] grid grid-cols-1 md:grid-cols-2">
         {/* Contact Form */}
         <div className="p-8 md:p-16 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-center">
-          <h2 className="font-display text-6xl uppercase mb-8 animate-fade-up">{pageContent.formTitle}</h2>
+          <h2 className="font-display text-6xl uppercase mb-8 animate-fade-up">{pageContent.formTitle || t.contact.formTitle}</h2>
           <form onSubmit={handleSubmit} className="space-y-6 animate-slide-left">
             <div>
               <label className="block font-display text-xl uppercase mb-2">
-                Who Are You?
+                {t.contact.form.name}
               </label>
               <input
                 type="text"
@@ -144,7 +146,7 @@ export default function ContactPage() {
             </div>
             <div>
               <label className="block font-display text-xl uppercase mb-2">
-                Your Email
+                {t.contact.form.email}
               </label>
               <input
                 type="email"
@@ -157,7 +159,7 @@ export default function ContactPage() {
             </div>
             <div>
               <label className="block font-display text-xl uppercase mb-2">
-                The Idea
+                {t.contact.form.message}
               </label>
               <textarea
                 rows={3}
@@ -173,17 +175,17 @@ export default function ContactPage() {
               disabled={isSubmitting}
               className="w-full bg-[var(--ink)] text-[var(--cream)] py-4 font-display text-2xl uppercase hover:bg-[var(--tv-red)] hover:text-[var(--ink)] hover:border-2 hover:border-[var(--ink)] transition-all border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Sending..." : "Send Transmission"}
+              {isSubmitting ? t.contact.form.submitting : t.contact.form.submit}
             </button>
 
             {submitStatus === "success" && (
               <p className="text-green-600 text-center font-bold">
-                Message sent successfully! We&apos;ll get back to you soon.
+                {t.contact.success}
               </p>
             )}
             {submitStatus === "error" && (
               <p className="text-[var(--tv-red)] text-center font-bold">
-                Something went wrong. Please try again.
+                {t.contact.error}
               </p>
             )}
           </form>
@@ -193,7 +195,7 @@ export default function ContactPage() {
         <div className="p-8 md:p-16 flex flex-col justify-between bg-[var(--tv-red)] text-[var(--cream)]">
           <div>
             <h2 className="font-display text-6xl uppercase mb-8 mix-blend-difference animate-fade-up">
-              {pageContent.infoTitle}<br />{pageContent.infoTitleAccent}
+              {pageContent.infoTitle || t.contact.infoTitle}<br />{pageContent.infoTitleAccent || t.contact.infoTitleAccent}
             </h2>
             <ul className="space-y-4 font-display text-3xl uppercase animate-stagger">
               {socialLinks.map((link) => {
@@ -232,7 +234,7 @@ export default function ContactPage() {
               </div>
             </div>
             <p className="font-sans text-xs font-bold opacity-60">
-              © 2025 SON Networks LLC. All Rights Reserved.
+              © 2025 SON Networks LLC. {t.footer.rights}
             </p>
           </div>
         </div>

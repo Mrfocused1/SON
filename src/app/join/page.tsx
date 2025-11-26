@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Default fallback roles
 const defaultRoles = [
@@ -27,14 +28,15 @@ const defaultRoles = [
 ];
 
 export default function JoinPage() {
+  const { t } = useLanguage();
   const [roles, setRoles] = useState(defaultRoles);
   const [pageContent, setPageContent] = useState({
-    title: "Join The",
-    titleAccent: "Team.",
-    subtitle: "We are always looking for editors, writers, and talent. If you have the sauce, we have the platform.",
-    pitchTitle: "Got An",
-    pitchTitleAccent: "Idea?",
-    pitchSubtitle: "We want to hear your craziest concepts. Pitch us your show, series, or one-off video idea.",
+    title: "",
+    titleAccent: "",
+    subtitle: "",
+    pitchTitle: "",
+    pitchTitleAccent: "",
+    pitchSubtitle: "",
   });
   const [formData, setFormData] = useState({
     name: "",
@@ -167,10 +169,10 @@ export default function JoinPage() {
       {/* Left: Join The Team */}
       <div className="bg-[var(--cream)] p-8 md:p-16 border-b-2 lg:border-b-0 lg:border-r-2 border-[var(--ink)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--ink)] mb-8 animate-fade-up">
-          {pageContent.title}<br />{pageContent.titleAccent}
+          {pageContent.title || t.join.title}<br />{pageContent.titleAccent || t.join.titleAccent}
         </h2>
         <p className="text-xl mb-12 font-medium animate-fade-up">
-          {pageContent.subtitle}
+          {pageContent.subtitle || t.join.subtitle}
         </p>
 
         <div className="space-y-8 flex-1 animate-stagger">
@@ -198,10 +200,10 @@ export default function JoinPage() {
       {/* Right: Suggest Ideas (Pitch) */}
       <div className="bg-[var(--ink)] p-8 md:p-16 text-[var(--cream)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--tv-red)] mb-8 animate-fade-up">
-          {pageContent.pitchTitle}<br />{pageContent.pitchTitleAccent}
+          {pageContent.pitchTitle || t.join.pitchTitle}<br />{pageContent.pitchTitleAccent || t.join.pitchTitleAccent}
         </h2>
         <p className="text-xl mb-12 text-gray-400 animate-fade-up">
-          {pageContent.pitchSubtitle}
+          {pageContent.pitchSubtitle || t.join.pitchSubtitle}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8 animate-slide-right">
@@ -219,7 +221,7 @@ export default function JoinPage() {
               htmlFor="name"
               className="absolute left-0 top-3 text-gray-500 uppercase font-bold text-sm transition-all pointer-events-none"
             >
-              Your Name
+              {t.join.form.name}
             </label>
           </div>
           <div className="relative group form-group">
@@ -236,7 +238,7 @@ export default function JoinPage() {
               htmlFor="email"
               className="absolute left-0 top-3 text-gray-500 uppercase font-bold text-sm transition-all pointer-events-none"
             >
-              Your Email
+              {t.join.form.email}
             </label>
           </div>
           <div className="relative group form-group">
@@ -253,7 +255,7 @@ export default function JoinPage() {
               htmlFor="pitch"
               className="absolute left-0 top-3 text-gray-500 uppercase font-bold text-sm transition-all pointer-events-none"
             >
-              The Pitch (Keep it brief)
+              {t.join.form.description}
             </label>
           </div>
 
@@ -262,7 +264,7 @@ export default function JoinPage() {
             disabled={isSubmitting}
             className="w-full bg-[var(--tv-red)] text-white font-display text-3xl uppercase py-6 hover:bg-[var(--cream)] hover:text-[var(--ink)] transition-colors border-2 border-transparent hover:border-[var(--ink)] mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Sending..." : "Send Idea"}
+            {isSubmitting ? t.join.form.submitting : t.join.form.submit}
           </button>
 
           {submitStatus === "success" && (

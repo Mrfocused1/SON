@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Default fallback social links
 const defaultSocialLinks = [
@@ -13,6 +14,7 @@ const defaultSocialLinks = [
 ];
 
 export function Footer() {
+  const { t } = useLanguage();
   const [socialLinks, setSocialLinks] = useState(defaultSocialLinks);
 
   // Load social links from Supabase
