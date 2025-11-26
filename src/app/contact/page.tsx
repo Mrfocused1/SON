@@ -129,7 +129,7 @@ export default function ContactPage() {
       <div className="bg-[var(--tv-red)] min-h-screen text-[var(--ink)] grid grid-cols-1 md:grid-cols-2">
         {/* Contact Form */}
         <div className="p-8 md:p-16 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-center">
-          <h2 className="font-display text-6xl uppercase mb-8 animate-fade-up">{pageContent.formTitle || t.contact.formTitle}</h2>
+          <h2 className="font-display text-6xl uppercase mb-8 animate-fade-up">{t.contact.formTitle}</h2>
           <form onSubmit={handleSubmit} className="space-y-6 animate-slide-left">
             <div>
               <label className="block font-display text-xl uppercase mb-2">
@@ -195,7 +195,7 @@ export default function ContactPage() {
         <div className="p-8 md:p-16 flex flex-col justify-between bg-[var(--tv-red)] text-[var(--cream)]">
           <div>
             <h2 className="font-display text-6xl uppercase mb-8 mix-blend-difference animate-fade-up">
-              {pageContent.infoTitle || t.contact.infoTitle}<br />{pageContent.infoTitleAccent || t.contact.infoTitleAccent}
+              {t.contact.infoTitle}<br />{t.contact.infoTitleAccent}
             </h2>
             <ul className="space-y-4 font-display text-3xl uppercase animate-stagger">
               {socialLinks.map((link) => {

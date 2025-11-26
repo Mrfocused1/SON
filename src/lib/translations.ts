@@ -74,6 +74,18 @@ export const translations = {
         submit: "Envoyer le Pitch",
         submitting: "Envoi en cours...",
       },
+      success: "Pitch envoyé avec succès! Nous vous contacterons bientôt.",
+      error: "Une erreur s'est produite. Veuillez réessayer.",
+      modal: {
+        apply: "Postuler:",
+        portfolio: "Portfolio / Réseaux Sociaux",
+        portfolioPlaceholder: "YouTube, Instagram, Site web...",
+        aboutYou: "Parlez-nous de vous",
+        aboutYouPlaceholder: "Votre expérience, pourquoi vous voulez nous rejoindre...",
+        submitApplication: "Envoyer la Candidature",
+        submittingApplication: "Envoi en cours...",
+        applicationSuccess: "Candidature envoyée! Nous vous contacterons bientôt.",
+      },
     },
     // Contact page
     contact: {
@@ -181,6 +193,18 @@ export const translations = {
         description: "Describe your idea",
         submit: "Submit Pitch",
         submitting: "Submitting...",
+      },
+      success: "Pitch sent successfully! We'll be in touch.",
+      error: "Something went wrong. Please try again.",
+      modal: {
+        apply: "Apply:",
+        portfolio: "Portfolio / Social Links",
+        portfolioPlaceholder: "YouTube, Instagram, Website...",
+        aboutYou: "Tell Us About Yourself",
+        aboutYouPlaceholder: "Your experience, why you want to join...",
+        submitApplication: "Submit Application",
+        submittingApplication: "Submitting...",
+        applicationSuccess: "Application sent! We'll be in touch.",
       },
     },
     // Contact page

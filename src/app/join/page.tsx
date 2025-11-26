@@ -169,10 +169,10 @@ export default function JoinPage() {
       {/* Left: Join The Team */}
       <div className="bg-[var(--cream)] p-8 md:p-16 border-b-2 lg:border-b-0 lg:border-r-2 border-[var(--ink)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--ink)] mb-8 animate-fade-up">
-          {pageContent.title || t.join.title}<br />{pageContent.titleAccent || t.join.titleAccent}
+          {t.join.title}<br />{t.join.titleAccent}
         </h2>
         <p className="text-xl mb-12 font-medium animate-fade-up">
-          {pageContent.subtitle || t.join.subtitle}
+          {t.join.subtitle}
         </p>
 
         <div className="space-y-8 flex-1 animate-stagger">
@@ -200,10 +200,10 @@ export default function JoinPage() {
       {/* Right: Suggest Ideas (Pitch) */}
       <div className="bg-[var(--ink)] p-8 md:p-16 text-[var(--cream)] flex flex-col">
         <h2 className="font-display text-6xl md:text-8xl uppercase text-[var(--tv-red)] mb-8 animate-fade-up">
-          {pageContent.pitchTitle || t.join.pitchTitle}<br />{pageContent.pitchTitleAccent || t.join.pitchTitleAccent}
+          {t.join.pitchTitle}<br />{t.join.pitchTitleAccent}
         </h2>
         <p className="text-xl mb-12 text-gray-400 animate-fade-up">
-          {pageContent.pitchSubtitle || t.join.pitchSubtitle}
+          {t.join.pitchSubtitle}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8 animate-slide-right">
@@ -269,12 +269,12 @@ export default function JoinPage() {
 
           {submitStatus === "success" && (
             <p className="text-green-500 text-center font-bold">
-              Pitch sent successfully! We&apos;ll be in touch.
+              {t.join.success}
             </p>
           )}
           {submitStatus === "error" && (
             <p className="text-[var(--tv-red)] text-center font-bold">
-              Something went wrong. Please try again.
+              {t.join.error}
             </p>
           )}
         </form>
@@ -291,7 +291,7 @@ export default function JoinPage() {
           <div className="bg-[var(--cream)] w-full max-w-lg relative border-2 border-[var(--ink)]">
             {/* Header */}
             <div className="bg-[var(--ink)] text-[var(--cream)] p-6 flex justify-between items-center">
-              <h3 className="font-display text-3xl uppercase">Apply: {selectedRole}</h3>
+              <h3 className="font-display text-3xl uppercase">{t.join.modal.apply} {selectedRole}</h3>
               <button
                 onClick={() => setSelectedRole(null)}
                 className="hover:text-[var(--tv-red)] transition-colors"
@@ -304,56 +304,54 @@ export default function JoinPage() {
             <form onSubmit={handleApplicationSubmit} className="p-6 space-y-6">
               <div>
                 <label className="block font-display text-lg uppercase mb-2 text-[var(--ink)]">
-                  Your Name
+                  {t.join.form.name}
                 </label>
                 <input
                   type="text"
                   value={applicationData.name}
                   onChange={(e) => setApplicationData({ ...applicationData, name: e.target.value })}
                   className="w-full bg-transparent border-2 border-[var(--ink)] px-4 py-3 text-lg font-bold focus:outline-none focus:border-[var(--tv-red)] transition-colors"
-                  placeholder="Enter your name"
                   required
                 />
               </div>
 
               <div>
                 <label className="block font-display text-lg uppercase mb-2 text-[var(--ink)]">
-                  Email
+                  {t.join.form.email}
                 </label>
                 <input
                   type="email"
                   value={applicationData.email}
                   onChange={(e) => setApplicationData({ ...applicationData, email: e.target.value })}
                   className="w-full bg-transparent border-2 border-[var(--ink)] px-4 py-3 text-lg font-bold focus:outline-none focus:border-[var(--tv-red)] transition-colors"
-                  placeholder="your@email.com"
                   required
                 />
               </div>
 
               <div>
                 <label className="block font-display text-lg uppercase mb-2 text-[var(--ink)]">
-                  Portfolio / Social Links
+                  {t.join.modal.portfolio}
                 </label>
                 <input
                   type="text"
                   value={applicationData.portfolio}
                   onChange={(e) => setApplicationData({ ...applicationData, portfolio: e.target.value })}
                   className="w-full bg-transparent border-2 border-[var(--ink)] px-4 py-3 text-lg font-bold focus:outline-none focus:border-[var(--tv-red)] transition-colors"
-                  placeholder="YouTube, Instagram, Website..."
+                  placeholder={t.join.modal.portfolioPlaceholder}
                   required
                 />
               </div>
 
               <div>
                 <label className="block font-display text-lg uppercase mb-2 text-[var(--ink)]">
-                  Tell Us About Yourself
+                  {t.join.modal.aboutYou}
                 </label>
                 <textarea
                   rows={4}
                   value={applicationData.experience}
                   onChange={(e) => setApplicationData({ ...applicationData, experience: e.target.value })}
                   className="w-full bg-transparent border-2 border-[var(--ink)] px-4 py-3 text-lg font-bold focus:outline-none focus:border-[var(--tv-red)] transition-colors resize-none"
-                  placeholder="Your experience, why you want to join..."
+                  placeholder={t.join.modal.aboutYouPlaceholder}
                   required
                 />
               </div>
@@ -363,17 +361,17 @@ export default function JoinPage() {
                 disabled={applicationSubmitting}
                 className="w-full bg-[var(--tv-red)] text-[var(--cream)] py-4 font-display text-2xl uppercase hover:bg-[var(--ink)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {applicationSubmitting ? "Submitting..." : "Submit Application"}
+                {applicationSubmitting ? t.join.modal.submittingApplication : t.join.modal.submitApplication}
               </button>
 
               {applicationStatus === "success" && (
                 <p className="text-green-600 text-center font-bold">
-                  Application sent! We&apos;ll be in touch.
+                  {t.join.modal.applicationSuccess}
                 </p>
               )}
               {applicationStatus === "error" && (
                 <p className="text-[var(--tv-red)] text-center font-bold">
-                  Something went wrong. Please try again.
+                  {t.join.error}
                 </p>
               )}
             </form>

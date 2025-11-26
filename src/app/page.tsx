@@ -34,24 +34,14 @@ const defaultScrollImages = [
 
 export default function Home() {
   const { openVideo } = useVideoModal();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
-  // State for dynamic content from Supabase
+  // State for dynamic content from Supabase (only non-text content)
   const [homeContent, setHomeContent] = useState({
-    heroTitle: "Ready",
-    heroTitleAccent: "To Roll.",
-    heroSubtitle: "SON Networks creates binge-worthy internet culture. We turn chaotic ideas into polished, high-octane entertainment.",
-    heroCtaText: "Watch Shows",
     heroCtaLink: "/shows",
     heroBackgroundImage: "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
     featuredVideoId: "hSiSKAgO3mM",
     featuredVideoThumbnail: "",
-    marqueeItems: ["Digital Production House", "Original Series", "Brand Stories", "Viral Content"],
-    studioTitle: "We Don't",
-    studioTitleAccent: "Play Safe.",
-    studioSubtitle: "SON Networks is a new breed of production house. We combine cinematic quality with the pacing of internet culture.",
-    quoteText: "We don't chase trends.",
-    quoteAccent: "We set them.",
   });
 
   const [capabilities, setCapabilities] = useState(defaultCapabilities);
@@ -71,20 +61,10 @@ export default function Home() {
 
         if (homeData) {
           setHomeContent({
-            heroTitle: homeData.hero_title || "Ready",
-            heroTitleAccent: homeData.hero_title_accent || "To Roll.",
-            heroSubtitle: homeData.hero_subtitle || "",
-            heroCtaText: homeData.hero_cta_text || "Watch Shows",
             heroCtaLink: homeData.hero_cta_link || "/shows",
             heroBackgroundImage: homeData.hero_background_image || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
             featuredVideoId: homeData.featured_video_id || "hSiSKAgO3mM",
             featuredVideoThumbnail: homeData.featured_video_thumbnail || "",
-            marqueeItems: homeData.marquee_items || ["Digital Production House", "Original Series", "Brand Stories", "Viral Content"],
-            studioTitle: homeData.studio_title || "We Don't",
-            studioTitleAccent: homeData.studio_title_accent || "Play Safe.",
-            studioSubtitle: homeData.studio_subtitle || "",
-            quoteText: homeData.quote_text || "We don't chase trends.",
-            quoteAccent: homeData.quote_accent || "We set them.",
           });
         }
 
@@ -126,7 +106,7 @@ export default function Home() {
         {/* Top Marquee */}
         <div className="grid-b-border py-3 bg-[var(--tv-red)] overflow-hidden">
           <Marquee speed={10} className="whitespace-nowrap font-display text-lg md:text-xl uppercase tracking-widest text-white">
-            {homeContent.marqueeItems.map((item, index) => (
+            {[t.marquee.production, t.marquee.series, t.marquee.brand, t.marquee.viral].map((item, index) => (
               <span key={index}>
                 <span className="mx-4">{item}</span> •{" "}
               </span>
@@ -147,11 +127,11 @@ export default function Home() {
             />
 
             <h1 className="font-display mega-text uppercase text-[var(--cream)] z-10 animate-fade-up">
-              {homeContent.heroTitle}<br />
-              <span className="text-[var(--tv-red)]">{homeContent.heroTitleAccent}</span>
+              {t.hero.title}<br />
+              <span className="text-[var(--tv-red)]">{t.hero.titleAccent}</span>
             </h1>
             <p className="font-sans text-xl md:text-2xl mt-8 max-w-lg font-medium leading-relaxed z-10 text-[var(--cream)] animate-fade-up">
-              {homeContent.heroSubtitle}
+              {t.hero.subtitle}
             </p>
 
             {/* CTA */}
@@ -160,7 +140,7 @@ export default function Home() {
                 href={homeContent.heroCtaLink}
                 className="bg-[var(--tv-red)] text-[var(--cream)] px-8 py-4 font-display text-xl uppercase hover:bg-[var(--cream)] hover:text-[var(--ink)] transition-colors border-2 border-[var(--tv-red)]"
               >
-                {homeContent.heroCtaText}
+                {t.hero.cta}
               </Link>
             </div>
           </div>
@@ -217,15 +197,20 @@ export default function Home() {
           </div>
         </div>
         <div className="bg-[var(--ink)] text-[var(--cream)] flex flex-col animate-stagger">
-          {capabilities.map((cap, index) => {
+          {[
+            { title: t.capabilities.create, description: t.capabilities.createDesc, icon: "Sparkles" },
+            { title: t.capabilities.collaborate, description: t.capabilities.collaborateDesc, icon: "Users" },
+            { title: t.capabilities.innovate, description: t.capabilities.innovateDesc, icon: "Lightbulb" },
+            { title: t.capabilities.launch, description: t.capabilities.launchDesc, icon: "Rocket" },
+          ].map((cap, index, arr) => {
             const Icon = iconMap[cap.icon] || Sparkles;
             return (
               <div
                 key={cap.title}
                 className={`p-8 md:p-10 ${
-                  index < capabilities.length - 1 ? "border-b border-gray-800" : ""
+                  index < arr.length - 1 ? "border-b border-gray-800" : ""
                 } hover:bg-zinc-900 transition-colors group cursor-pointer flex justify-between items-center ${
-                  index === capabilities.length - 1 ? "flex-1" : ""
+                  index === arr.length - 1 ? "flex-1" : ""
                 }`}
                 data-cursor="view"
               >
@@ -249,13 +234,13 @@ export default function Home() {
             {t.studio.title}
           </span>
           <h2 className="font-display text-[10vw] leading-none uppercase text-[var(--ink)] mb-12 animate-fade-up">
-            {homeContent.studioTitle}<br />{homeContent.studioTitleAccent.split(" ")[0]} <span className="stroke-text">{homeContent.studioTitleAccent.split(" ").slice(1).join(" ") || homeContent.studioTitleAccent}</span>
+            {t.studio.title}<br /><span className="stroke-text">{t.studio.titleAccent}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
             <div className="animate-slide-left">
               <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
-                {homeContent.studioSubtitle}
+                {t.studio.subtitle}
               </p>
             </div>
             {/* Scrolling Images */}
@@ -319,8 +304,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
         <div className="container mx-auto px-6 relative z-10">
           <h2 className="font-display text-[8vw] leading-[0.85] uppercase animate-fade-up">
-            &ldquo;{homeContent.quoteText}<br />We{" "}
-            <span className="text-[var(--tv-red)]">{homeContent.quoteAccent}</span>&rdquo;
+            &ldquo;{t.quote.text}<br />
+            <span className="text-[var(--tv-red)]">{t.quote.accent}</span>&rdquo;
           </h2>
         </div>
       </section>

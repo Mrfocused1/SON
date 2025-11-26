@@ -81,10 +81,10 @@ export default function ShowsPage() {
     <div className="bg-[var(--ink)] min-h-screen text-[var(--cream)] overflow-x-hidden">
       <div className="p-6 md:p-12 border-b-2 border-[var(--cream)]/20">
         <h1 className="font-display text-[10vw] uppercase leading-none text-[var(--tv-red)] animate-fade-up">
-          {pageContent.title || t.shows.title}
+          {t.shows.title}
         </h1>
         <p className="font-sans text-xl md:text-2xl mt-4 max-w-2xl animate-fade-up">
-          {pageContent.subtitle || t.shows.subtitle}
+          {t.shows.subtitle}
         </p>
       </div>
 
