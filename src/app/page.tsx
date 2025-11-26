@@ -200,7 +200,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CAPABILITIES SECTION */}
+      {/* CAPABILITIES SECTION - HIDDEN
       <section className="grid grid-cols-1 md:grid-cols-2 grid-b-border">
         <div className="p-12 md:p-24 border-b-2 md:border-b-0 md:border-r-2 border-[var(--ink)] bg-[var(--cream)] flex flex-col justify-between animate-slide-left">
           <div>
@@ -249,6 +249,7 @@ export default function Home() {
           })}
         </div>
       </section>
+      */}
 
       {/* FEATURED GRID TEASER */}
       <section className="grid grid-cols-1 md:grid-cols-3 bg-[var(--ink)] grid-b-border">
