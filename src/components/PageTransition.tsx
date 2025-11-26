@@ -14,9 +14,12 @@ export function PageTransition() {
     if (isTransitioning && !isAnimating.current) {
       isAnimating.current = true;
       setIsVisible(true);
+    }
+  }, [isTransitioning]);
 
+  useEffect(() => {
+    if (isVisible && transitionRef.current && isAnimating.current) {
       const transition = transitionRef.current;
-      if (!transition) return;
 
       // Reset position
       gsap.set(transition, { yPercent: 100 });
@@ -48,7 +51,7 @@ export function PageTransition() {
           },
         });
     }
-  }, [isTransitioning, completeTransition, finishTransition]);
+  }, [isVisible, completeTransition, finishTransition]);
 
   if (!isVisible) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 interface TransitionContextType {
@@ -15,22 +15,22 @@ const TransitionContext = createContext<TransitionContextType | undefined>(undef
 export function TransitionProvider({ children }: { children: ReactNode }) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const router = useRouter();
-  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const pendingHrefRef = useRef<string | null>(null);
 
   const navigateTo = useCallback((href: string) => {
     // Don't transition if already transitioning or same page
     if (isTransitioning) return;
-    
-    setPendingHref(href);
+
+    pendingHrefRef.current = href;
     setIsTransitioning(true);
   }, [isTransitioning]);
 
   const completeTransition = useCallback(() => {
-    if (pendingHref) {
-      router.push(pendingHref);
-      setPendingHref(null);
+    if (pendingHrefRef.current) {
+      router.push(pendingHrefRef.current);
+      pendingHrefRef.current = null;
     }
-  }, [pendingHref, router]);
+  }, [router]);
 
   const finishTransition = useCallback(() => {
     setIsTransitioning(false);
