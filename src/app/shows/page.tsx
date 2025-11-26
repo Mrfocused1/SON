@@ -5,25 +5,41 @@ import { VideoCard } from "@/components/VideoCard";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/context/LanguageContext";
 
+type VideoData = {
+  videoId: string;
+  thumbnail: string;
+  thumbnailMobile?: string | null;
+  focalX?: number;
+  focalY?: number;
+  title: string;
+  category: string;
+};
+
 // Default fallback data
-const defaultVideos = [
+const defaultVideos: VideoData[] = [
   {
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/8981855/pexels-photo-8981855.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     title: "Studio Session",
     category: "Behind The Scenes",
+    focalX: 0.5,
+    focalY: 0.5,
   },
   {
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/4911179/pexels-photo-4911179.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     title: "Content Creation",
     category: "Viral Short",
+    focalX: 0.5,
+    focalY: 0.5,
   },
   {
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/7676469/pexels-photo-7676469.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     title: "Creative Process",
     category: "Documentary",
+    focalX: 0.5,
+    focalY: 0.5,
   },
 ];
 
@@ -64,6 +80,9 @@ export default function ShowsPage() {
             showsData.map((show) => ({
               videoId: show.video_id,
               thumbnail: show.thumbnail,
+              thumbnailMobile: show.thumbnail_mobile || null,
+              focalX: show.focal_x ?? 0.5,
+              focalY: show.focal_y ?? 0.5,
               title: show.title,
               category: show.category,
             }))

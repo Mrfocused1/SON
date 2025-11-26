@@ -1,17 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import { useVideoModal } from "@/context/VideoModalContext";
+import { ResponsiveImage } from "@/components/ResponsiveImage";
 
 interface VideoCardProps {
   videoId: string;
   thumbnail: string;
+  thumbnailMobile?: string | null;
+  focalX?: number;
+  focalY?: number;
   title: string;
   category: string;
   className?: string;
 }
 
-export function VideoCard({ videoId, thumbnail, title, category, className = "" }: VideoCardProps) {
+export function VideoCard({ videoId, thumbnail, thumbnailMobile, focalX = 0.5, focalY = 0.5, title, category, className = "" }: VideoCardProps) {
   const { openVideo } = useVideoModal();
 
   return (
@@ -21,8 +24,11 @@ export function VideoCard({ videoId, thumbnail, title, category, className = "" 
       data-cursor="play"
     >
       <div className="image-wrapper w-full h-full">
-        <Image
-          src={thumbnail}
+        <ResponsiveImage
+          desktop={thumbnail}
+          mobile={thumbnailMobile}
+          focalX={focalX}
+          focalY={focalY}
           alt={title}
           fill
           className="object-cover"

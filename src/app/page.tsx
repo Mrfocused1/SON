@@ -8,6 +8,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Marquee } from "@/components/Marquee";
 import { supabase } from "@/lib/supabase";
 import { TransitionLink } from "@/components/TransitionLink";
+import { ResponsiveImage } from "@/components/ResponsiveImage";
 
 // Icon mapping for capabilities
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -25,11 +26,18 @@ const defaultCapabilities = [
   { title: "Launch", description: "Go viral and reach millions together", icon: "Rocket" },
 ];
 
-const defaultScrollImages = [
-  "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-  "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-  "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-  "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+type ScrollImage = {
+  image_url: string;
+  image_url_mobile?: string | null;
+  focal_x?: number;
+  focal_y?: number;
+};
+
+const defaultScrollImages: ScrollImage[] = [
+  { image_url: "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
+  { image_url: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
+  { image_url: "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
+  { image_url: "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5 },
 ];
 
 export default function Home() {
@@ -40,12 +48,18 @@ export default function Home() {
   const [homeContent, setHomeContent] = useState({
     heroCtaLink: "/shows",
     heroBackgroundImage: "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    heroBackgroundImageMobile: null as string | null,
+    heroFocalX: 0.5,
+    heroFocalY: 0.5,
     featuredVideoId: "hSiSKAgO3mM",
     featuredVideoThumbnail: "",
+    featuredThumbnailMobile: null as string | null,
+    featuredFocalX: 0.5,
+    featuredFocalY: 0.5,
   });
 
   const [capabilities, setCapabilities] = useState(defaultCapabilities);
-  const [scrollImages, setScrollImages] = useState(defaultScrollImages);
+  const [scrollImages, setScrollImages] = useState<ScrollImage[]>(defaultScrollImages);
 
   // Load content from Supabase
   useEffect(() => {
@@ -63,8 +77,14 @@ export default function Home() {
           setHomeContent({
             heroCtaLink: homeData.hero_cta_link || "/shows",
             heroBackgroundImage: homeData.hero_background_image || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+            heroBackgroundImageMobile: homeData.hero_background_image_mobile || null,
+            heroFocalX: homeData.hero_focal_x ?? 0.5,
+            heroFocalY: homeData.hero_focal_y ?? 0.5,
             featuredVideoId: homeData.featured_video_id || "hSiSKAgO3mM",
             featuredVideoThumbnail: homeData.featured_video_thumbnail || "",
+            featuredThumbnailMobile: homeData.featured_thumbnail_mobile || null,
+            featuredFocalX: homeData.featured_focal_x ?? 0.5,
+            featuredFocalY: homeData.featured_focal_y ?? 0.5,
           });
         }
 
@@ -89,7 +109,12 @@ export default function Home() {
           .order("order", { ascending: true });
 
         if (imagesData && imagesData.length > 0) {
-          setScrollImages(imagesData.map(img => img.image_url));
+          setScrollImages(imagesData.map(img => ({
+            image_url: img.image_url,
+            image_url_mobile: img.image_url_mobile,
+            focal_x: img.focal_x ?? 0.5,
+            focal_y: img.focal_y ?? 0.5,
+          })));
         }
       } catch (error) {
         console.error("Error loading home content:", error);
@@ -118,8 +143,11 @@ export default function Home() {
           {/* Left Title Block */}
           <div className="col-span-12 md:col-span-8 p-6 md:p-12 flex flex-col justify-center grid-b-border md:border-b-0 md:grid-r-border relative overflow-hidden min-h-[60vh] md:min-h-0">
             {/* Background Image */}
-            <Image
-              src={homeContent.heroBackgroundImage || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"}
+            <ResponsiveImage
+              desktop={homeContent.heroBackgroundImage || "https://images.pexels.com/photos/3929480/pexels-photo-3929480.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"}
+              mobile={homeContent.heroBackgroundImageMobile}
+              focalX={homeContent.heroFocalX}
+              focalY={homeContent.heroFocalY}
               alt="Hero background"
               fill
               className="object-cover"
@@ -151,8 +179,11 @@ export default function Home() {
             onClick={() => openVideo(homeContent.featuredVideoId)}
             data-cursor="play"
           >
-            <Image
-              src={homeContent.featuredVideoThumbnail || `https://img.youtube.com/vi/${homeContent.featuredVideoId}/maxresdefault.jpg`}
+            <ResponsiveImage
+              desktop={homeContent.featuredVideoThumbnail || `https://img.youtube.com/vi/${homeContent.featuredVideoId}/maxresdefault.jpg`}
+              mobile={homeContent.featuredThumbnailMobile}
+              focalX={homeContent.featuredFocalX}
+              focalY={homeContent.featuredFocalY}
               alt="Featured Video"
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
@@ -246,14 +277,15 @@ export default function Home() {
             {/* Scrolling Images */}
             <div className="relative h-64 overflow-hidden border-2 border-[var(--ink)] bg-white marquee-container flex items-center animate-scale-up">
               <Marquee speed={12} className="gap-4 px-4">
-                {scrollImages.map((src, index) => (
+                {scrollImages.map((img, index) => (
                   <Image
                     key={index}
-                    src={src}
+                    src={img.image_url}
                     alt={`Studio image ${index + 1}`}
                     width={192}
                     height={192}
                     className="h-48 w-48 object-cover border border-[var(--ink)]"
+                    style={{ objectPosition: `${(img.focal_x ?? 0.5) * 100}% ${(img.focal_y ?? 0.5) * 100}%` }}
                   />
                 ))}
               </Marquee>
