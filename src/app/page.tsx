@@ -26,21 +26,6 @@ const defaultCapabilities = [
   { title: "Launch", description: "Go viral and reach millions together", icon: "Rocket" },
 ];
 
-type ScrollImage = {
-  image_url: string;
-  image_url_mobile?: string | null;
-  focal_x?: number;
-  focal_y?: number;
-  focal_x_mobile?: number;
-  focal_y_mobile?: number;
-};
-
-const defaultScrollImages: ScrollImage[] = [
-  { image_url: "https://images.pexels.com/photos/8374522/pexels-photo-8374522.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
-  { image_url: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
-  { image_url: "https://images.pexels.com/photos/7676502/pexels-photo-7676502.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
-  { image_url: "https://images.pexels.com/photos/320617/pexels-photo-320617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", focal_x: 0.5, focal_y: 0.5, focal_x_mobile: 0.5, focal_y_mobile: 0.5 },
-];
 
 export default function Home() {
   const { openVideo } = useVideoModal();
@@ -65,7 +50,6 @@ export default function Home() {
   });
 
   const [capabilities, setCapabilities] = useState(defaultCapabilities);
-  const [scrollImages, setScrollImages] = useState<ScrollImage[]>(defaultScrollImages);
 
   // Load content from Supabase
   useEffect(() => {
@@ -109,23 +93,6 @@ export default function Home() {
             title: cap.title,
             description: cap.description,
             icon: cap.icon || "Sparkles",
-          })));
-        }
-
-        // Load studio images
-        const { data: imagesData } = await supabase
-          .from("studio_images")
-          .select("*")
-          .order("order", { ascending: true });
-
-        if (imagesData && imagesData.length > 0) {
-          setScrollImages(imagesData.map(img => ({
-            image_url: img.image_url,
-            image_url_mobile: img.image_url_mobile,
-            focal_x: img.focal_x ?? 0.5,
-            focal_y: img.focal_y ?? 0.5,
-            focal_x_mobile: img.focal_x_mobile ?? 0.5,
-            focal_y_mobile: img.focal_y_mobile ?? 0.5,
           })));
         }
       } catch (error) {
@@ -271,46 +238,6 @@ export default function Home() {
               </div>
             );
           })}
-        </div>
-      </section>
-
-      {/* STUDIO / MARQUEE SECTION */}
-      <section className="grid-b-border bg-[var(--cream)] py-24 overflow-hidden relative">
-        <div className="container mx-auto px-6 relative z-10">
-          <span className="font-bold uppercase tracking-widest text-[var(--tv-red)] mb-4 block animate-fade-up">
-            {t.studio.title}
-          </span>
-          <h2 className="font-display text-[10vw] leading-none uppercase text-[var(--ink)] mb-12 animate-fade-up">
-            {t.studio.title}<br /><span className="stroke-text">{t.studio.titleAccent}</span>
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
-            <div className="animate-slide-left">
-              <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
-                {t.studio.subtitle}
-              </p>
-            </div>
-            {/* Scrolling Images */}
-            <div className="relative h-64 overflow-hidden border-2 border-[var(--ink)] bg-white marquee-container flex items-center animate-scale-up">
-              <Marquee speed={12} className="gap-4 px-4">
-                {scrollImages.map((img, index) => (
-                  <div key={index} className="relative h-48 w-48 border border-[var(--ink)] flex-shrink-0">
-                    <ResponsiveImage
-                      desktop={img.image_url}
-                      mobile={img.image_url_mobile}
-                      desktopFocalX={img.focal_x}
-                      desktopFocalY={img.focal_y}
-                      mobileFocalX={img.focal_x_mobile}
-                      mobileFocalY={img.focal_y_mobile}
-                      alt={`Studio image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </Marquee>
-            </div>
-          </div>
         </div>
       </section>
 
