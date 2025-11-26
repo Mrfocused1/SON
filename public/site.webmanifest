@@ -1,0 +1,71 @@
+{
+  "name": "SON Networks",
+  "short_name": "SON",
+  "description": "French African Entertainment & Digital Production London",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#E53935",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "media", "video"],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shows",
+      "short_name": "Shows",
+      "description": "Watch our shows and videos",
+      "url": "/shows",
+      "icons": [{ "src": "/icon-shows.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Join Us",
+      "short_name": "Join",
+      "description": "Work with SON Networks",
+      "url": "/join",
+      "icons": [{ "src": "/icon-join.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Contact",
+      "short_name": "Contact",
+      "description": "Get in touch",
+      "url": "/contact",
+      "icons": [{ "src": "/icon-contact.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://sonnetworks.site"
+    }
+  ],
+  "prefer_related_applications": false
+}
