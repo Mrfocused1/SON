@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTransition } from "@/context/TransitionContext";
+import { usePageTransition } from "@/context/TransitionContext";
 import gsap from "gsap";
 
 export function PageTransition() {
-  const { isTransitioning, completeTransition, finishTransition } = useTransition();
+  const { isTransitioning, completeTransition, finishTransition } = usePageTransition();
   const transitionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const isAnimating = useRef(false);

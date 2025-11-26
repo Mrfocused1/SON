@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "@/context/TransitionContext";
+import { usePageTransition } from "@/context/TransitionContext";
 import { usePathname } from "next/navigation";
 import { ReactNode, MouseEvent } from "react";
 
@@ -12,7 +12,7 @@ interface TransitionLinkProps {
 }
 
 export function TransitionLink({ href, children, className, onClick }: TransitionLinkProps) {
-  const { navigateTo } = useTransition();
+  const { navigateTo } = usePageTransition();
   const pathname = usePathname();
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
