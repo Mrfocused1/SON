@@ -43,8 +43,7 @@ export function ScrollAnimations() {
       return;
     }
 
-    // Small delay to ensure DOM is ready after preloader or route change
-    const timeout = setTimeout(() => {
+    // Immediate setup - no delay needed, animations are non-blocking
     const ctx = gsap.context(() => {
       // Animate once per page visit - plays when scrolled into view, stays visible after
 
@@ -213,9 +212,6 @@ export function ScrollAnimations() {
     ScrollTrigger.refresh();
 
     return () => ctx.revert();
-    }, 100);
-
-    return () => clearTimeout(timeout);
   }, [isLoading, pathname, isMobile]);
 
   return null;

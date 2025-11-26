@@ -60,7 +60,7 @@ export function Preloader() {
   return (
     <div
       ref={preloaderRef}
-      className="fixed inset-0 bg-[#111111] z-[10001] flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 bg-[#111111] z-[10001] flex items-center justify-center overflow-hidden pointer-events-none"
     >
       <h1
         ref={textRef}
