@@ -11,6 +11,7 @@ import { ScrollAnimations } from "@/components/ScrollAnimations";
 import { VideoModalProvider } from "@/context/VideoModalContext";
 import { PreloaderProvider } from "@/context/PreloaderContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { TransitionProvider } from "@/context/TransitionContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,18 +47,20 @@ export default function RootLayout({
       <body className={`${inter.variable} ${anton.variable} font-sans antialiased`}>
         <LanguageProvider>
           <PreloaderProvider>
-            <VideoModalProvider>
-            <Preloader />
-            <PageTransition />
-            <ScrollAnimations />
-            <CustomCursor />
-            <VideoModal />
-            <Navbar />
-            <main className="pt-16 md:pt-20 overflow-x-hidden">
-              {children}
-            </main>
-            <Footer />
-            </VideoModalProvider>
+            <TransitionProvider>
+              <VideoModalProvider>
+                <Preloader />
+                <PageTransition />
+                <ScrollAnimations />
+                <CustomCursor />
+                <VideoModal />
+                <Navbar />
+                <main className="pt-16 md:pt-20 overflow-x-hidden">
+                  {children}
+                </main>
+                <Footer />
+              </VideoModalProvider>
+            </TransitionProvider>
           </PreloaderProvider>
         </LanguageProvider>
       </body>

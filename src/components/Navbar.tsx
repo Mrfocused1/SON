@@ -7,6 +7,7 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { TransitionLink } from "@/components/TransitionLink";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -45,7 +46,7 @@ export function Navbar() {
             const isContact = link.href === "/contact";
 
             return (
-              <Link
+              <TransitionLink
                 key={link.href}
                 href={link.href}
                 className={`px-8 flex items-center font-display text-xl uppercase transition-colors grid-r-border ${
@@ -61,7 +62,7 @@ export function Navbar() {
                 }`}
               >
                 {link.label}
-              </Link>
+              </TransitionLink>
             );
           })}
           {/* Language Switcher */}
@@ -83,14 +84,14 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-[var(--ink)] text-[var(--cream)]">
           {navLinks.map((link) => (
-            <Link
+            <TransitionLink
               key={link.href}
               href={link.href}
               className="block px-6 py-4 font-display text-xl uppercase border-b border-gray-800 hover:bg-[var(--tv-red)] transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {link.label}
-            </Link>
+            </TransitionLink>
           ))}
           {/* Mobile Language Switcher */}
           <div className="px-6 py-4 border-b border-gray-800">

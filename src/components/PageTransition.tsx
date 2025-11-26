@@ -1,54 +1,55 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useTransition } from "@/context/TransitionContext";
 import gsap from "gsap";
 
 export function PageTransition() {
-  const pathname = usePathname();
-  const [showTransition, setShowTransition] = useState(false);
+  const { isTransitioning, completeTransition } = useTransition();
   const transitionRef = useRef<HTMLDivElement>(null);
-  const previousPathRef = useRef<string>(pathname);
-  const isFirstRender = useRef(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const isAnimating = useRef(false);
 
   useEffect(() => {
-    // Skip on initial load (handled by Preloader)
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
+    if (isTransitioning && !isAnimating.current) {
+      isAnimating.current = true;
+      setIsVisible(true);
+
+      const transition = transitionRef.current;
+      if (!transition) return;
+
+      // Reset position
+      gsap.set(transition, { yPercent: 100 });
+
+      // Animation timeline
+      const tl = gsap.timeline();
+
+      // Slide in from bottom - cover the screen FIRST
+      tl.to(transition, {
+        yPercent: 0,
+        duration: 0.35,
+        ease: "power3.out",
+        onComplete: () => {
+          // NOW navigate after screen is covered
+          completeTransition();
+        },
+      })
+        // Wait for navigation and content to settle
+        .to({}, { duration: 0.4 })
+        // Slide out to top
+        .to(transition, {
+          yPercent: -100,
+          duration: 0.4,
+          ease: "power3.inOut",
+          onComplete: () => {
+            setIsVisible(false);
+            isAnimating.current = false;
+          },
+        });
     }
+  }, [isTransitioning, completeTransition]);
 
-    // Skip if same path
-    if (previousPathRef.current === pathname) return;
-
-    // Route has changed
-    previousPathRef.current = pathname;
-    setShowTransition(true);
-
-    const transition = transitionRef.current;
-    if (!transition) return;
-
-    // Quick transition animation
-    const tl = gsap.timeline();
-
-    // Slide in from bottom
-    tl.fromTo(
-      transition,
-      { yPercent: 100 },
-      { yPercent: 0, duration: 0.3, ease: "power3.out" }
-    )
-      // Brief pause to ensure content is loaded
-      .to({}, { duration: 0.2 })
-      // Slide out to top
-      .to(transition, {
-        yPercent: -100,
-        duration: 0.4,
-        ease: "power3.inOut",
-        onComplete: () => setShowTransition(false),
-      });
-  }, [pathname]);
-
-  if (!showTransition) return null;
+  if (!isVisible) return null;
 
   return (
     <div

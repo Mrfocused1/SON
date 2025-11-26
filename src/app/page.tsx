@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Users, Lightbulb, Rocket } from "lucide-react";
 import { useVideoModal } from "@/context/VideoModalContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { Marquee } from "@/components/Marquee";
 import { supabase } from "@/lib/supabase";
+import { TransitionLink } from "@/components/TransitionLink";
 
 // Icon mapping for capabilities
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -136,12 +136,12 @@ export default function Home() {
 
             {/* CTA */}
             <div className="mt-12 flex gap-6 z-10 animate-pop">
-              <Link
+              <TransitionLink
                 href={homeContent.heroCtaLink}
                 className="bg-[var(--tv-red)] text-[var(--cream)] px-8 py-4 font-display text-xl uppercase hover:bg-[var(--cream)] hover:text-[var(--ink)] transition-colors border-2 border-[var(--tv-red)]"
               >
                 {t.hero.cta}
-              </Link>
+              </TransitionLink>
             </div>
           </div>
 
@@ -188,12 +188,12 @@ export default function Home() {
             </p>
           </div>
           <div className="mt-12 animate-pop">
-            <Link
+            <TransitionLink
               href="/contact"
               className="inline-block border-b-2 border-[var(--ink)] text-xl font-display uppercase hover:text-[var(--tv-red)] hover:border-[var(--tv-red)] transition-colors"
             >
               {t.nav.contactUs}
-            </Link>
+            </TransitionLink>
           </div>
         </div>
         <div className="bg-[var(--ink)] text-[var(--cream)] flex flex-col animate-stagger">
@@ -286,7 +286,7 @@ export default function Home() {
             </h3>
           </div>
         </div>
-        <Link
+        <TransitionLink
           href="/shows"
           className="col-span-1 bg-[var(--tv-red)] p-8 md:p-12 flex flex-col justify-center items-center text-center relative overflow-hidden group cursor-pointer min-h-[300px] animate-slide-right"
         >
@@ -296,7 +296,7 @@ export default function Home() {
           <div className="mt-8 border-2 border-[var(--ink)] bg-[var(--cream)] text-[var(--ink)] px-6 py-2 font-display text-lg uppercase transform group-hover:-rotate-3 transition-transform animate-pop">
             {t.common.learnMore}
           </div>
-        </Link>
+        </TransitionLink>
       </section>
 
       {/* PHILOSOPHY / QUOTE */}
@@ -319,7 +319,7 @@ export default function Home() {
             { title: t.nav.joinUs, href: "/join" },
             { title: t.nav.contactUs, href: "/contact" },
           ].map((item, index) => (
-            <Link
+            <TransitionLink
               key={item.title}
               href={item.href}
               className={`aspect-video ${
@@ -331,7 +331,7 @@ export default function Home() {
               <span className="font-display text-xl md:text-2xl uppercase text-[var(--ink)] group-hover:text-[var(--cream)] text-center transition-colors">
                 {item.title}
               </span>
-            </Link>
+            </TransitionLink>
           ))}
         </div>
       </section>
