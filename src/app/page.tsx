@@ -338,11 +338,11 @@ export default function Home() {
           href="/shows"
           className="col-span-1 bg-[var(--tv-red)] p-8 md:p-12 flex flex-col justify-center items-center text-center relative overflow-hidden group cursor-pointer min-h-[300px] animate-slide-right"
         >
-          <h3 className="font-display text-6xl text-[var(--cream)] mb-2 scale-up animate-fade-up">
+          <h3 className="font-display text-6xl text-[var(--cream)] mb-2 scale-up animate-fade-up uppercase">
             {t.nav.shows}
           </h3>
           <div className="mt-8 border-2 border-[var(--ink)] bg-[var(--cream)] text-[var(--ink)] px-6 py-2 font-display text-lg uppercase transform group-hover:-rotate-3 transition-transform animate-pop">
-            {t.common.learnMore}
+            {t.common.browse}
           </div>
         </TransitionLink>
       </section>
