@@ -1418,17 +1418,13 @@ function GalleryEditor() {
   const [images, setImages] = useState<Array<{
     id?: string;
     image_url: string;
-    image_url_mobile?: string | null;
-    alt: string;
-    alt_fr?: string;
-    focal_x?: number;
-    focal_y?: number;
-    focal_x_mobile?: number;
-    focal_y_mobile?: number;
+    link_url?: string | null;
     order?: number;
   }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   // Load gallery images from Supabase
   useEffect(() => {
@@ -1470,13 +1466,7 @@ function GalleryEditor() {
       // Insert new images with order
       const imagesWithOrder = images.map((img, index) => ({
         image_url: img.image_url,
-        image_url_mobile: img.image_url_mobile || null,
-        alt: img.alt || "",
-        alt_fr: img.alt_fr || "",
-        focal_x: img.focal_x ?? 0.5,
-        focal_y: img.focal_y ?? 0.5,
-        focal_x_mobile: img.focal_x_mobile ?? 0.5,
-        focal_y_mobile: img.focal_y_mobile ?? 0.5,
+        link_url: img.link_url || null,
         order: index + 1,
       }));
 
@@ -1502,8 +1492,7 @@ function GalleryEditor() {
   const addImage = () => {
     setImages([...images, {
       image_url: "",
-      alt: "",
-      alt_fr: "",
+      link_url: "",
     }]);
   };
 
@@ -1511,7 +1500,7 @@ function GalleryEditor() {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const updateImage = (index: number, field: string, value: string | number | null) => {
+  const updateImage = (index: number, field: string, value: string | null) => {
     const updated = [...images];
     updated[index] = { ...updated[index], [field]: value };
     setImages(updated);
@@ -1523,6 +1512,26 @@ function GalleryEditor() {
     const newIndex = direction === "up" ? index - 1 : index + 1;
     [newImages[index], newImages[newIndex]] = [newImages[newIndex], newImages[index]];
     setImages(newImages);
+  };
+
+  const handleFileUpload = async (index: number, file: File) => {
+    if (!file) return;
+
+    setUploadingIndex(index);
+    try {
+      const url = await uploadImage(file);
+      if (url) {
+        updateImage(index, "image_url", url);
+        showToast("Image uploaded successfully!", "success");
+      } else {
+        showToast("Failed to upload image", "error");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      showToast("Failed to upload image", "error");
+    } finally {
+      setUploadingIndex(null);
+    }
   };
 
   if (loading) {
@@ -1605,52 +1614,74 @@ function GalleryEditor() {
                     </div>
                   </div>
 
-                  {/* Image Preview */}
-                  <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 bg-[var(--ink)]/5 relative overflow-hidden">
+                  {/* Image Preview & Upload */}
+                  <div className="w-32 h-32 md:w-40 md:h-40 flex-shrink-0 relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      ref={(el) => { fileInputRefs.current[index] = el; }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(index, file);
+                      }}
+                    />
                     {image.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={image.image_url} alt={image.alt} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-[var(--ink)]/20" />
+                      <div className="w-full h-full relative group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={image.image_url} alt="Gallery image" className="w-full h-full object-cover rounded" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded">
+                          <button
+                            onClick={() => fileInputRefs.current[index]?.click()}
+                            disabled={uploadingIndex === index}
+                            className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            {uploadingIndex === index ? (
+                              <Loader2 className="w-5 h-5 animate-spin text-[var(--tv-red)]" />
+                            ) : (
+                              <Upload className="w-5 h-5 text-[var(--ink)]" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => updateImage(index, "image_url", "")}
+                            className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            <X className="w-5 h-5 text-red-500" />
+                          </button>
+                        </div>
                       </div>
+                    ) : (
+                      <button
+                        onClick={() => fileInputRefs.current[index]?.click()}
+                        disabled={uploadingIndex === index}
+                        className="w-full h-full border-2 border-dashed border-[var(--ink)]/20 rounded flex flex-col items-center justify-center gap-2 hover:border-[var(--tv-red)] hover:bg-[var(--tv-red)]/5 transition-colors"
+                      >
+                        {uploadingIndex === index ? (
+                          <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-[var(--ink)]/40" />
+                            <span className="text-xs text-[var(--ink)]/60 font-medium">Upload Image</span>
+                          </>
+                        )}
+                      </button>
                     )}
                   </div>
 
-                  {/* Image Details */}
-                  <div className="flex-1 space-y-3">
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Image URL</label>
-                      <input
-                        type="text"
-                        value={image.image_url}
-                        onChange={(e) => updateImage(index, "image_url", e.target.value)}
-                        placeholder="https://..."
-                        className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Alt Text (EN)</label>
-                        <input
-                          type="text"
-                          value={image.alt}
-                          onChange={(e) => updateImage(index, "alt", e.target.value)}
-                          placeholder="Image description"
-                          className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Alt Text (FR)</label>
-                        <input
-                          type="text"
-                          value={image.alt_fr || ""}
-                          onChange={(e) => updateImage(index, "alt_fr", e.target.value)}
-                          placeholder="Description de l'image"
-                          className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none"
-                        />
-                      </div>
-                    </div>
+                  {/* Link URL */}
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                      <LinkIcon className="w-3 h-3 inline mr-1" />
+                      Link URL (opens in new tab)
+                    </label>
+                    <input
+                      type="url"
+                      value={image.link_url || ""}
+                      onChange={(e) => updateImage(index, "link_url", e.target.value)}
+                      placeholder="https://example.com (optional)"
+                      className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none rounded"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Leave empty for no link</p>
                   </div>
 
                   {/* Delete Button */}

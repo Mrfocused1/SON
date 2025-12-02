@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ArrowUpRight, Sparkles, Users, Lightbulb, Rocket, X } from "lucide-react";
+import { ArrowUpRight, Sparkles, Users, Lightbulb, Rocket } from "lucide-react";
 import { useVideoModal } from "@/context/VideoModalContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { Marquee } from "@/components/Marquee";
@@ -60,15 +60,8 @@ export default function Home() {
   const [galleryImages, setGalleryImages] = useState<{
     id: string;
     imageUrl: string;
-    imageUrlMobile?: string | null;
-    alt: string;
-    altFr?: string;
-    focalX: number;
-    focalY: number;
-    focalXMobile: number;
-    focalYMobile: number;
+    linkUrl?: string | null;
   }[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Load content from Supabase
   useEffect(() => {
@@ -132,13 +125,7 @@ export default function Home() {
           setGalleryImages(galleryData.map(img => ({
             id: img.id,
             imageUrl: img.image_url,
-            imageUrlMobile: img.image_url_mobile || null,
-            alt: img.alt || "",
-            altFr: img.alt_fr || "",
-            focalX: img.focal_x ?? 0.5,
-            focalY: img.focal_y ?? 0.5,
-            focalXMobile: img.focal_x_mobile ?? 0.5,
-            focalYMobile: img.focal_y_mobile ?? 0.5,
+            linkUrl: img.link_url || null,
           })));
         }
       } catch (error) {
@@ -236,52 +223,40 @@ export default function Home() {
       {galleryImages.length > 0 && (
         <section className="bg-[var(--cream)] border-b-2 border-[var(--ink)]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-            {galleryImages.map((image) => (
-              <div
-                key={image.id}
-                className="aspect-square relative group cursor-pointer overflow-hidden border-r-2 border-b-2 border-[var(--ink)] last:border-r-0 md:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n)]:border-r-2 lg:[&:nth-child(6n)]:border-r-0"
-                onClick={() => setSelectedImage(image.imageUrl)}
-              >
-                <ResponsiveImage
-                  desktop={image.imageUrl}
-                  mobile={image.imageUrlMobile}
-                  desktopFocalX={image.focalX}
-                  desktopFocalY={image.focalY}
-                  mobileFocalX={image.focalXMobile}
-                  mobileFocalY={image.focalYMobile}
-                  alt={language === 'fr' && image.altFr ? image.altFr : image.alt}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-[var(--ink)]/0 group-hover:bg-[var(--ink)]/40 transition-colors duration-300" />
-              </div>
-            ))}
+            {galleryImages.map((image) => {
+              const content = (
+                <>
+                  <Image
+                    src={image.imageUrl}
+                    alt="Gallery"
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-[var(--ink)]/0 group-hover:bg-[var(--ink)]/40 transition-colors duration-300" />
+                </>
+              );
+
+              return image.linkUrl ? (
+                <a
+                  key={image.id}
+                  href={image.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="aspect-square relative group cursor-pointer overflow-hidden border-r-2 border-b-2 border-[var(--ink)] last:border-r-0 md:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n)]:border-r-2 lg:[&:nth-child(6n)]:border-r-0"
+                >
+                  {content}
+                </a>
+              ) : (
+                <div
+                  key={image.id}
+                  className="aspect-square relative group overflow-hidden border-r-2 border-b-2 border-[var(--ink)] last:border-r-0 md:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n)]:border-r-2 lg:[&:nth-child(6n)]:border-r-0"
+                >
+                  {content}
+                </div>
+              );
+            })}
           </div>
         </section>
-      )}
-
-      {/* Image Lightbox */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <button
-            onClick={() => setSelectedImage(null)}
-            className="absolute top-6 right-6 text-white hover:text-[var(--tv-red)] transition-colors z-10"
-          >
-            <X className="w-10 h-10" />
-          </button>
-          <div className="relative w-full max-w-5xl aspect-video">
-            <Image
-              src={selectedImage}
-              alt="Gallery image"
-              fill
-              className="object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        </div>
       )}
 
       {/* CAPABILITIES SECTION - HIDDEN
