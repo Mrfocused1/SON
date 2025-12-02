@@ -2808,11 +2808,17 @@ function FooterEditor() {
 
 // Settings Editor
 function SettingsEditor() {
+  const { showToast } = useToast();
   const [siteSettings, setSiteSettings] = useState({
+    id: "",
     siteName: "SON Networks",
     siteDescription: "SON Networks creates binge-worthy internet culture. We turn chaotic ideas into polished, high-octane entertainment.",
-    logoUrl: "https://yt3.googleusercontent.com/Jlx-jh1nmdOXcZF_kGW8nF7kCwJ7uDL8zhDkw9h37l___lcfXE2DMR2Gb9GcAfnzvpBv3JmbpQ=s160-c-k-c0x00ffffff-no-rj",
+    logoUrl: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const [colors, setColors] = useState({
     ink: "#111111",
@@ -2820,9 +2826,189 @@ function SettingsEditor() {
     tvRed: "#FF3333",
   });
 
+  // Load settings from Supabase
+  useEffect(() => {
+    async function loadSettings() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error("Error loading settings:", error);
+      } else if (data) {
+        setSiteSettings({
+          id: data.id,
+          siteName: data.site_name || "SON Networks",
+          siteDescription: data.site_description || "",
+          logoUrl: data.logo_url || "",
+        });
+        setColors({
+          ink: data.ink_color || "#111111",
+          cream: data.cream_color || "#F3F0E6",
+          tvRed: data.red_color || "#FF3333",
+        });
+      }
+
+      setLoading(false);
+    }
+    loadSettings();
+  }, []);
+
+  // Save settings to Supabase
+  const saveSettings = async () => {
+    if (!supabase) {
+      showToast("Supabase is not configured", "error");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .update({
+          site_name: siteSettings.siteName,
+          site_description: siteSettings.siteDescription,
+          logo_url: siteSettings.logoUrl,
+          ink_color: colors.ink,
+          cream_color: colors.cream,
+          red_color: colors.tvRed,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", siteSettings.id);
+
+      if (error) throw error;
+
+      showToast("Settings saved successfully!", "success");
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      showToast("Failed to save settings", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle logo upload
+  const handleLogoUpload = async (file: File) => {
+    if (!file) return;
+
+    setUploadingLogo(true);
+    try {
+      const url = await uploadImage(file);
+      if (url) {
+        setSiteSettings({ ...siteSettings, logoUrl: url });
+        showToast("Logo uploaded successfully!", "success");
+      } else {
+        showToast("Failed to upload logo", "error");
+      }
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      showToast("Failed to upload logo", "error");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      <h2 className="font-display text-2xl md:text-4xl uppercase mb-4 md:mb-8">Site Settings</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 className="font-display text-2xl md:text-4xl uppercase">Site Settings</h2>
+        <button
+          onClick={saveSettings}
+          disabled={saving}
+          className="flex items-center gap-2 bg-[var(--tv-red)] text-white px-4 md:px-6 py-2 md:py-3 font-display uppercase text-sm hover:bg-red-600 transition-colors disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? "Saving..." : "Save Settings"}
+        </button>
+      </div>
+
+      {/* Logo Upload Section */}
+      <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
+        <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-[var(--tv-red)]" />
+          Site Logo
+        </h3>
+
+        <div className="flex flex-col md:flex-row items-start gap-6">
+          {/* Logo Preview */}
+          <div className="w-32 h-32 md:w-40 md:h-40 flex-shrink-0 relative">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={logoInputRef}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleLogoUpload(file);
+              }}
+            />
+            {siteSettings.logoUrl ? (
+              <div className="w-full h-full relative group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={siteSettings.logoUrl} alt="Site logo" className="w-full h-full object-contain rounded border-2 border-[var(--ink)]/10" />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded">
+                  <button
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={uploadingLogo}
+                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[var(--tv-red)]" />
+                    ) : (
+                      <Upload className="w-5 h-5 text-[var(--ink)]" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setSiteSettings({ ...siteSettings, logoUrl: "" })}
+                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-red-500" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => logoInputRef.current?.click()}
+                disabled={uploadingLogo}
+                className="w-full h-full border-2 border-dashed border-[var(--ink)]/20 rounded flex flex-col items-center justify-center gap-2 hover:border-[var(--tv-red)] hover:bg-[var(--tv-red)]/5 transition-colors"
+              >
+                {uploadingLogo ? (
+                  <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-[var(--ink)]/40" />
+                    <span className="text-xs text-[var(--ink)]/60 font-medium">Upload Logo</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          <div className="flex-1">
+            <p className="text-sm text-gray-500 mb-4">
+              Upload your site logo. Recommended size: 80x80px or larger. Supports PNG, JPG, or SVG.
+            </p>
+            <p className="text-xs text-gray-400">
+              The logo will appear in the navigation bar on all pages.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="bg-white border border-[var(--ink)]/10 p-6 rounded-lg shadow-sm">
         <h3 className="font-display text-lg md:text-2xl uppercase mb-4 md:mb-6 flex items-center gap-2">
@@ -2830,7 +3016,7 @@ function SettingsEditor() {
           General Settings
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 md:gap-6">
           <div>
             <label className="block font-display uppercase text-sm mb-2">Site Name</label>
             <input
@@ -2841,15 +3027,6 @@ function SettingsEditor() {
             />
           </div>
           <div>
-            <label className="block font-display uppercase text-sm mb-2">Logo URL</label>
-            <input
-              type="text"
-              value={siteSettings.logoUrl}
-              onChange={(e) => setSiteSettings({ ...siteSettings, logoUrl: e.target.value })}
-              className="w-full bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
-            />
-          </div>
-          <div className="col-span-1 md:col-span-2">
             <label className="block font-display uppercase text-sm mb-2">Site Description (SEO)</label>
             <textarea
               value={siteSettings.siteDescription}
@@ -2918,31 +3095,6 @@ function SettingsEditor() {
                 className="flex-1 bg-white border border-[var(--ink)]/20 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-[var(--tv-red)] rounded"
               />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-amber-50 border border-amber-200 p-6 rounded-lg">
-        <h3 className="font-display text-xl uppercase mb-4 text-amber-700">Supabase Connection</h3>
-        <p className="text-[var(--ink)]/70 mb-4">
-          To enable data persistence, connect your Supabase project. You&apos;ll need to add your Supabase URL and anon key to your environment variables.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          <div>
-            <label className="block font-display uppercase text-sm mb-2">Supabase URL</label>
-            <input
-              type="text"
-              placeholder="https://your-project.supabase.co"
-              className="w-full bg-white border border-amber-300 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-amber-500 rounded"
-            />
-          </div>
-          <div>
-            <label className="block font-display uppercase text-sm mb-2">Anon Key</label>
-            <input
-              type="password"
-              placeholder="your-anon-key"
-              className="w-full bg-white border border-amber-300 px-4 py-3 text-[var(--ink)] focus:outline-none focus:border-amber-500 rounded"
-            />
           </div>
         </div>
       </section>

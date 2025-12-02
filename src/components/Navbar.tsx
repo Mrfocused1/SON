@@ -4,15 +4,36 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { TransitionLink } from "@/components/TransitionLink";
+import { supabase } from "@/lib/supabase";
+
+const DEFAULT_LOGO = "https://yt3.googleusercontent.com/Jlx-jh1nmdOXcZF_kGW8nF7kCwJ7uDL8zhDkw9h37l___lcfXE2DMR2Gb9GcAfnzvpBv3JmbpQ=s160-c-k-c0x00ffffff-no-rj";
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO);
   const { t } = useLanguage();
+
+  // Load logo from database
+  useEffect(() => {
+    async function loadLogo() {
+      if (!supabase) return;
+
+      const { data } = await supabase
+        .from("site_settings")
+        .select("logo_url")
+        .single();
+
+      if (data?.logo_url) {
+        setLogoUrl(data.logo_url);
+      }
+    }
+    loadLogo();
+  }, []);
 
   // Navigation links with translations
   const navLinks = [
@@ -31,11 +52,11 @@ export function Navbar() {
           className="flex items-center px-6 md:px-10 grid-r-border"
         >
           <Image
-            src="https://yt3.googleusercontent.com/Jlx-jh1nmdOXcZF_kGW8nF7kCwJ7uDL8zhDkw9h37l___lcfXE2DMR2Gb9GcAfnzvpBv3JmbpQ=s160-c-k-c0x00ffffff-no-rj"
+            src={logoUrl}
             alt="SON Networks Logo"
-            width={40}
-            height={40}
-            className="w-8 h-8 md:w-20 md:h-20 rounded-full border-2 border-[var(--ink)] group-hover:border-[var(--cream)] transition-colors"
+            width={80}
+            height={80}
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-[var(--ink)] group-hover:border-[var(--cream)] transition-colors object-cover"
           />
         </Link>
 
