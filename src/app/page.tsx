@@ -363,7 +363,7 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 animate-stagger">
           {[
             { title: t.nav.shows, href: "/shows" },
-            { title: t.shows.trending, href: "/shows" },
+            { title: `${t.join.pitchTitle} ${t.join.pitchTitleAccent}`, href: "/join" },
             { title: t.nav.joinUs, href: "/join" },
             { title: t.nav.contactUs, href: "/contact" },
           ].map((item, index) => (
