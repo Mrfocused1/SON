@@ -56,7 +56,7 @@ export function Navbar() {
             alt="SON Networks Logo"
             width={80}
             height={80}
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-[var(--ink)] group-hover:border-[var(--cream)] transition-colors object-cover"
+            className="w-auto h-10 md:h-14 object-contain"
           />
         </Link>
 
