@@ -21,7 +21,9 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
-  XCircle
+  XCircle,
+  GripVertical,
+  LayoutGrid
 } from "lucide-react";
 import { supabase, uploadImage } from "@/lib/supabase";
 import { ResponsiveImageUploader } from "@/components/admin/ResponsiveImageUploader";
@@ -73,7 +75,7 @@ function ToastContainer({ toasts, removeToast }: { toasts: Toast[]; removeToast:
   );
 }
 
-type Section = "home" | "media" | "shows" | "join" | "contact" | "navigation" | "footer" | "settings";
+type Section = "home" | "gallery" | "media" | "shows" | "join" | "contact" | "navigation" | "footer" | "settings";
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<Section>("home");
@@ -99,6 +101,7 @@ export default function AdminPage() {
 
   const sidebarItems = [
     { id: "home" as Section, label: "Home Page", icon: Home },
+    { id: "gallery" as Section, label: "Gallery", icon: LayoutGrid },
     { id: "media" as Section, label: "Media Library", icon: ImageIcon },
     { id: "shows" as Section, label: "Shows", icon: Film },
     { id: "join" as Section, label: "Join Page", icon: Users },
@@ -219,6 +222,7 @@ export default function AdminPage() {
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 lg:p-8 w-full overflow-x-hidden">
           {activeSection === "home" && <HomeEditor />}
+          {activeSection === "gallery" && <GalleryEditor />}
           {activeSection === "media" && <MediaLibrary />}
           {activeSection === "shows" && <ShowsEditor />}
           {activeSection === "join" && <JoinEditor />}
@@ -1403,6 +1407,264 @@ function MediaLibrary() {
             </div>
           ))}
         </div>
+      </section>
+    </div>
+  );
+}
+
+// Gallery Editor
+function GalleryEditor() {
+  const { showToast } = useToast();
+  const [images, setImages] = useState<Array<{
+    id?: string;
+    image_url: string;
+    image_url_mobile?: string | null;
+    alt: string;
+    alt_fr?: string;
+    focal_x?: number;
+    focal_y?: number;
+    focal_x_mobile?: number;
+    focal_y_mobile?: number;
+    order?: number;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Load gallery images from Supabase
+  useEffect(() => {
+    async function loadGallery() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (error) {
+        console.error("Error loading gallery:", error);
+      } else if (data) {
+        setImages(data);
+      }
+
+      setLoading(false);
+    }
+    loadGallery();
+  }, []);
+
+  // Save gallery to Supabase
+  const saveGallery = useCallback(async () => {
+    if (!supabase) {
+      showToast("Supabase is not configured", "error");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      // Delete all existing images
+      await supabase.from("gallery_images").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      // Insert new images with order
+      const imagesWithOrder = images.map((img, index) => ({
+        image_url: img.image_url,
+        image_url_mobile: img.image_url_mobile || null,
+        alt: img.alt || "",
+        alt_fr: img.alt_fr || "",
+        focal_x: img.focal_x ?? 0.5,
+        focal_y: img.focal_y ?? 0.5,
+        focal_x_mobile: img.focal_x_mobile ?? 0.5,
+        focal_y_mobile: img.focal_y_mobile ?? 0.5,
+        order: index + 1,
+      }));
+
+      const { error } = await supabase.from("gallery_images").insert(imagesWithOrder);
+      if (error) throw error;
+
+      // Reload to get new IDs
+      const { data } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .order("order", { ascending: true });
+      if (data) setImages(data);
+
+      showToast("Gallery saved successfully!", "success");
+    } catch (error) {
+      console.error("Error saving gallery:", error);
+      showToast("Failed to save gallery", "error");
+    } finally {
+      setSaving(false);
+    }
+  }, [images, showToast]);
+
+  const addImage = () => {
+    setImages([...images, {
+      image_url: "",
+      alt: "",
+      alt_fr: "",
+    }]);
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
+  const updateImage = (index: number, field: string, value: string | number | null) => {
+    const updated = [...images];
+    updated[index] = { ...updated[index], [field]: value };
+    setImages(updated);
+  };
+
+  const moveImage = (index: number, direction: "up" | "down") => {
+    if ((direction === "up" && index === 0) || (direction === "down" && index === images.length - 1)) return;
+    const newImages = [...images];
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    [newImages[index], newImages[newIndex]] = [newImages[newIndex], newImages[index]];
+    setImages(newImages);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--tv-red)]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="font-display text-2xl md:text-4xl uppercase">Gallery</h2>
+          <p className="text-gray-500 mt-1 text-sm md:text-base">Manage the image gallery on the homepage</p>
+        </div>
+        <button
+          onClick={saveGallery}
+          disabled={saving}
+          className="flex items-center gap-2 bg-[var(--tv-red)] text-white px-4 md:px-6 py-2 md:py-3 font-display uppercase text-sm hover:bg-red-600 transition-colors disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? "Saving..." : "Save Gallery"}
+        </button>
+      </div>
+
+      {/* Gallery Grid Preview */}
+      <section className="bg-white border-2 border-[var(--ink)]/10 p-4 md:p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-display text-lg md:text-xl uppercase flex items-center gap-2">
+            <LayoutGrid className="w-5 h-5" />
+            Gallery Images ({images.length})
+          </h3>
+          <button
+            onClick={addImage}
+            className="flex items-center gap-1 md:gap-2 text-[var(--tv-red)] hover:text-red-600 font-display uppercase text-xs md:text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Image
+          </button>
+        </div>
+
+        {images.length === 0 ? (
+          <div className="text-center py-12 border-2 border-dashed border-[var(--ink)]/20 rounded-lg">
+            <LayoutGrid className="w-12 h-12 mx-auto text-[var(--ink)]/20 mb-4" />
+            <p className="text-gray-500 mb-4">No gallery images yet</p>
+            <button
+              onClick={addImage}
+              className="inline-flex items-center gap-2 bg-[var(--tv-red)] text-white px-4 py-2 font-display uppercase text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add First Image
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {images.map((image, index) => (
+              <div key={image.id || index} className="border-2 border-[var(--ink)]/10 p-4 bg-[var(--cream)]/50">
+                <div className="flex items-start gap-4">
+                  {/* Drag Handle & Order */}
+                  <div className="flex flex-col items-center gap-2 pt-2">
+                    <GripVertical className="w-5 h-5 text-gray-400" />
+                    <span className="text-xs font-bold text-gray-400">#{index + 1}</span>
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => moveImage(index, "up")}
+                        disabled={index === 0}
+                        className="p-1 hover:bg-[var(--ink)]/10 rounded disabled:opacity-30"
+                      >
+                        <ChevronRight className="w-4 h-4 -rotate-90" />
+                      </button>
+                      <button
+                        onClick={() => moveImage(index, "down")}
+                        disabled={index === images.length - 1}
+                        className="p-1 hover:bg-[var(--ink)]/10 rounded disabled:opacity-30"
+                      >
+                        <ChevronRight className="w-4 h-4 rotate-90" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Image Preview */}
+                  <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 bg-[var(--ink)]/5 relative overflow-hidden">
+                    {image.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={image.image_url} alt={image.alt} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-[var(--ink)]/20" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Image Details */}
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Image URL</label>
+                      <input
+                        type="text"
+                        value={image.image_url}
+                        onChange={(e) => updateImage(index, "image_url", e.target.value)}
+                        placeholder="https://..."
+                        className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Alt Text (EN)</label>
+                        <input
+                          type="text"
+                          value={image.alt}
+                          onChange={(e) => updateImage(index, "alt", e.target.value)}
+                          placeholder="Image description"
+                          className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Alt Text (FR)</label>
+                        <input
+                          type="text"
+                          value={image.alt_fr || ""}
+                          onChange={(e) => updateImage(index, "alt_fr", e.target.value)}
+                          placeholder="Description de l'image"
+                          className="w-full border-2 border-[var(--ink)]/20 px-3 py-2 text-sm focus:border-[var(--tv-red)] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
