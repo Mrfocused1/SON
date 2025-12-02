@@ -9,26 +9,35 @@ import { useLanguage } from "@/context/LanguageContext";
 const defaultRoles = [
   {
     title: "Content Creator",
+    titleFr: "Créateur de Contenu",
     type: "Remote",
+    typeFr: "À Distance",
     typeColor: "bg-[var(--tv-red)]",
     description: "Bring your unique voice and ideas to our network.",
+    descriptionFr: "Apportez votre voix unique et vos idées à notre réseau.",
   },
   {
     title: "Script Writer",
+    titleFr: "Scénariste",
     type: "LA / Hybrid",
+    typeFr: "LA / Hybride",
     typeColor: "bg-[var(--ink)]",
     description: "Comedy focused. Must be chronically online.",
+    descriptionFr: "Orienté comédie. Doit être chroniquement en ligne.",
   },
   {
     title: "On-Screen Talent",
+    titleFr: "Talent à l'Écran",
     type: "Flexible",
+    typeFr: "Flexible",
     typeColor: "bg-[var(--tv-red)]",
     description: "Camera-ready personalities who can captivate audiences.",
+    descriptionFr: "Des personnalités prêtes pour la caméra qui peuvent captiver le public.",
   },
 ];
 
 export default function JoinPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [roles, setRoles] = useState(defaultRoles);
   const [pageContent, setPageContent] = useState({
     title: "",
@@ -88,9 +97,12 @@ export default function JoinPage() {
           setRoles(
             rolesData.map((role, index) => ({
               title: role.title,
+              titleFr: role.title_fr,
               type: role.type,
+              typeFr: role.type_fr,
               typeColor: index % 2 === 0 ? "bg-[var(--tv-red)]" : "bg-[var(--ink)]",
               description: role.description,
+              descriptionFr: role.description_fr,
             }))
           );
         }
@@ -176,24 +188,30 @@ export default function JoinPage() {
         </p>
 
         <div className="space-y-8 flex-1 animate-stagger">
-          {roles.map((role) => (
-            <div
-              key={role.title}
-              className="group border-b-2 border-[var(--ink)] pb-6 cursor-pointer hover:pl-4 transition-all"
-              data-cursor="apply"
-              onClick={() => setSelectedRole(role.title)}
-            >
-              <div className="flex justify-between items-end mb-2">
-                <h3 className="font-display text-3xl uppercase group-hover:text-[var(--tv-red)] transition-colors">{role.title}</h3>
-                <span
-                  className={`${role.typeColor} text-white text-xs font-bold px-2 py-1 uppercase`}
-                >
-                  {role.type}
-                </span>
+          {roles.map((role) => {
+            const displayTitle = language === 'fr' && role.titleFr ? role.titleFr : role.title;
+            const displayType = language === 'fr' && role.typeFr ? role.typeFr : role.type;
+            const displayDescription = language === 'fr' && role.descriptionFr ? role.descriptionFr : role.description;
+
+            return (
+              <div
+                key={role.title}
+                className="group border-b-2 border-[var(--ink)] pb-6 cursor-pointer hover:pl-4 transition-all"
+                data-cursor="apply"
+                onClick={() => setSelectedRole(displayTitle)}
+              >
+                <div className="flex justify-between items-end mb-2">
+                  <h3 className="font-display text-3xl uppercase group-hover:text-[var(--tv-red)] transition-colors">{displayTitle}</h3>
+                  <span
+                    className={`${role.typeColor} text-white text-xs font-bold px-2 py-1 uppercase`}
+                  >
+                    {displayType}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500">{displayDescription}</p>
               </div>
-              <p className="text-sm text-gray-500">{role.description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

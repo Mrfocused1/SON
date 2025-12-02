@@ -14,7 +14,9 @@ type VideoData = {
   focalXMobile?: number;
   focalYMobile?: number;
   title: string;
+  titleFr?: string;
   category: string;
+  categoryFr?: string;
 };
 
 // Default fallback data
@@ -23,7 +25,9 @@ const defaultVideos: VideoData[] = [
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/8981855/pexels-photo-8981855.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     title: "Studio Session",
+    titleFr: "Session Studio",
     category: "Behind The Scenes",
+    categoryFr: "Dans les Coulisses",
     focalX: 0.5,
     focalY: 0.5,
     focalXMobile: 0.5,
@@ -33,7 +37,9 @@ const defaultVideos: VideoData[] = [
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/4911179/pexels-photo-4911179.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     title: "Content Creation",
+    titleFr: "Création de Contenu",
     category: "Viral Short",
+    categoryFr: "Vidéo Virale",
     focalX: 0.5,
     focalY: 0.5,
     focalXMobile: 0.5,
@@ -43,7 +49,9 @@ const defaultVideos: VideoData[] = [
     videoId: "hSiSKAgO3mM",
     thumbnail: "https://images.pexels.com/photos/7676469/pexels-photo-7676469.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     title: "Creative Process",
+    titleFr: "Processus Créatif",
     category: "Documentary",
+    categoryFr: "Documentaire",
     focalX: 0.5,
     focalY: 0.5,
     focalXMobile: 0.5,
@@ -52,7 +60,7 @@ const defaultVideos: VideoData[] = [
 ];
 
 export default function ShowsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [videos, setVideos] = useState(defaultVideos);
   const [pageContent, setPageContent] = useState({
     title: "",
@@ -94,7 +102,9 @@ export default function ShowsPage() {
               focalXMobile: show.focal_x_mobile ?? 0.5,
               focalYMobile: show.focal_y_mobile ?? 0.5,
               title: show.title,
+              titleFr: show.title_fr,
               category: show.category,
+              categoryFr: show.category_fr,
             }))
           );
         }
@@ -120,7 +130,18 @@ export default function ShowsPage() {
       {/* VIDEO GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
         {videos.map((video, index) => (
-          <VideoCard key={`${video.videoId}-${index}`} {...video} />
+          <VideoCard
+            key={`${video.videoId}-${index}`}
+            videoId={video.videoId}
+            thumbnail={video.thumbnail}
+            thumbnailMobile={video.thumbnailMobile}
+            focalX={video.focalX}
+            focalY={video.focalY}
+            focalXMobile={video.focalXMobile}
+            focalYMobile={video.focalYMobile}
+            title={language === 'fr' && video.titleFr ? video.titleFr : video.title}
+            category={language === 'fr' && video.categoryFr ? video.categoryFr : video.category}
+          />
         ))}
 
         {/* More Coming Soon */}
