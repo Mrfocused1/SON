@@ -1,4 +1,5 @@
-import { sql } from '@vercel/postgres';
+import pkg from 'pg';
+const { Client } = pkg;
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,61 +23,69 @@ async function updateImageUrls() {
 
   console.log(`Found ${totalMappings} URL mappings\n`);
 
+  const connectionString = process.env.DATABASE_POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL;
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  });
+
+  await client.connect();
+
   // Tables and columns that contain image URLs
   const updates = [
-    { table: 'capabilities', column: 'icon_url' },
-    { table: 'studio_images', column: 'image_url' },
-    { table: 'gallery_images', column: 'image_url' },
-    { table: 'shows', column: 'thumbnail_url' },
-    { table: 'site_settings', column: 'logo_url' },
-    { table: 'site_settings', column: 'favicon_url' }
+    { table: 'home_content', columns: ['hero_background_image', 'featured_video_thumbnail', 'hero_background_image_mobile', 'featured_thumbnail_mobile'] },
+    { table: 'gallery_images', columns: ['image_url', 'image_url_mobile'] },
+    { table: 'shows', columns: ['thumbnail', 'thumbnail_mobile'] },
+    { table: 'site_settings', columns: ['logo_url', 'logo_url_mobile'] }
   ];
 
   let updateCount = 0;
 
-  for (const { table, column } of updates) {
-    console.log(`Updating ${table}.${column}...`);
+  for (const { table, columns } of updates) {
+    console.log(`\nUpdating ${table}...`);
 
     try {
-      // Get all records with image URLs
-      const { rows } = await sql.query(
-        `SELECT id, ${column} FROM ${table} WHERE ${column} IS NOT NULL`
-      );
+      // Get all records
+      const result = await client.query(`SELECT * FROM ${table}`);
 
-      for (const row of rows) {
-        const oldUrl = row[column];
+      for (const row of result.rows) {
+        const updates = [];
+        const values = [];
+        let valueIndex = 1;
 
-        // Find matching new URL
-        const newUrl = mapping[oldUrl];
+        columns.forEach(column => {
+          const oldUrl = row[column];
+          if (oldUrl && mapping[oldUrl]) {
+            updates.push(`${column} = $${valueIndex}`);
+            values.push(mapping[oldUrl]);
+            valueIndex++;
+            console.log(`  ✓ Will update ${column}: ${oldUrl.substring(0, 50)}...`);
+          }
+        });
 
-        if (newUrl) {
-          await sql.query(
-            `UPDATE ${table} SET ${column} = $1 WHERE id = $2`,
-            [newUrl, row.id]
+        if (updates.length > 0) {
+          values.push(row.id);
+          await client.query(
+            `UPDATE ${table} SET ${updates.join(', ')} WHERE id = $${valueIndex}`,
+            values
           );
-
+          updateCount += updates.length;
           console.log(`  ✓ Updated record ${row.id}`);
-          updateCount++;
-        } else {
-          console.log(`  ⚠️  No mapping found for: ${oldUrl}`);
         }
       }
     } catch (error) {
-      console.error(`  ✗ Error updating ${table}.${column}:`, error.message);
+      console.error(`  ✗ Error updating ${table}:`, error.message);
     }
   }
 
-  console.log(`\n✓ Updated ${updateCount} image URLs`);
+  await client.end();
+  console.log(`\n✓ Updated ${updateCount} image URLs total`);
 }
 
 async function main() {
   console.log('Starting image URL update...\n');
 
   try {
-    // Test connection
-    await sql`SELECT NOW()`;
-    console.log('✓ Database connection successful\n');
-
     await updateImageUrls();
   } catch (error) {
     console.error('✗ Error:', error.message);

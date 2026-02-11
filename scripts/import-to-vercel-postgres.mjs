@@ -1,4 +1,5 @@
-import { sql } from '@vercel/postgres';
+import pkg from 'pg';
+const { Client } = pkg;
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,7 +25,7 @@ const TABLES = [
   'site_settings'
 ];
 
-async function importTable(tableName) {
+async function importTable(tableName, client) {
   const filePath = path.join(MIGRATION_DIR, `${tableName}.json`);
 
   if (!fs.existsSync(filePath)) {
@@ -43,16 +44,25 @@ async function importTable(tableName) {
 
   for (const record of data) {
     const columns = Object.keys(record).filter(key => key !== 'id');
-    const values = columns.map(col => record[col]);
+    // Quote columns named 'order' and handle JSON values
+    const quotedColumns = columns.map(col => col === 'order' ? `"order"` : col);
+    const values = columns.map(col => {
+      const val = record[col];
+      // Convert arrays and objects to JSON strings
+      if (Array.isArray(val) || (typeof val === 'object' && val !== null)) {
+        return JSON.stringify(val);
+      }
+      return val;
+    });
     const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
 
     const query = `
-      INSERT INTO ${tableName} (${columns.join(', ')})
+      INSERT INTO ${tableName} (${quotedColumns.join(', ')})
       VALUES (${placeholders})
     `;
 
     try {
-      await sql.query(query, values);
+      await client.query(query, values);
       console.log(`  ✓ Imported record ${record.id || 'new'}`);
     } catch (error) {
       console.error(`  ✗ Error importing record:`, error.message);
@@ -65,18 +75,28 @@ async function importTable(tableName) {
 
 async function main() {
   console.log('Starting Vercel Postgres import...\n');
-  console.log('Make sure your POSTGRES_URL environment variable is set!\n');
+
+  const connectionString = process.env.DATABASE_POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL;
+
+  if (!connectionString) {
+    throw new Error('No connection string found');
+  }
+
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  });
 
   try {
-    // Test connection
-    const result = await sql`SELECT NOW()`;
+    await client.connect();
     console.log('✓ Database connection successful\n');
 
     // Import each table
     for (const table of TABLES) {
-      await importTable(table);
+      await importTable(table, client);
     }
 
+    await client.end();
     console.log('\n✓ All data imported successfully!');
   } catch (error) {
     console.error('✗ Error:', error.message);
