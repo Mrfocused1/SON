@@ -250,9 +250,9 @@ export default function RootLayout({
             <TransitionProvider>
               <VideoModalProvider>
                 <Preloader />
-                {/* <PageTransition /> */}
-                {/* <ScrollRevealAnimations /> */}
-                {/* <CustomCursor /> */}
+                <PageTransition />
+                <ScrollRevealAnimations />
+                <CustomCursor />
                 <VideoModal />
                 <Navbar />
                 <main className="pt-16 md:pt-20 overflow-x-hidden">
