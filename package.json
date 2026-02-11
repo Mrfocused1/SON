@@ -16,10 +16,10 @@
     "@supabase/supabase-js": "^2.84.0",
     "gsap": "^3.13.0",
     "lucide-react": "^0.554.0",
-    "next": "16.0.4",
+    "next": "^16.1.6",
     "pg": "^8.18.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "resend": "^6.5.2"
   },
   "devDependencies": {
