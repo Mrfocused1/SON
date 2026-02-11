@@ -249,7 +249,7 @@ export default function RootLayout({
           <PreloaderProvider>
             <TransitionProvider>
               <VideoModalProvider>
-                {/* <Preloader /> */}
+                <Preloader />
                 {/* <PageTransition /> */}
                 {/* <ScrollRevealAnimations /> */}
                 {/* <CustomCursor /> */}
