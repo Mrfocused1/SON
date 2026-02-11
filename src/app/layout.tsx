@@ -251,7 +251,7 @@ export default function RootLayout({
               <VideoModalProvider>
                 <Preloader />
                 <PageTransition />
-                <ScrollAnimations />
+                {/* <ScrollAnimations /> */}
                 <CustomCursor />
                 <VideoModal />
                 <Navbar />

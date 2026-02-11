@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-02-11T18:21:29.867Z",
+  "timestamp": "2026-02-11T18:45:36.186Z",
   "metrics": {
-    "scrollEvents": 96,
-    "frameDrops": 3,
-    "avgScrollDelay": 31.7510416667598,
-    "maxScrollDelay": 922,
+    "scrollEvents": 175,
+    "frameDrops": 1,
+    "avgScrollDelay": 17.35199999996594,
+    "maxScrollDelay": 161.19999998807907,
     "url": "https://son-ivory.vercel.app/"
   },
   "domStats": {
-    "totalElements": 266,
-    "images": 13,
+    "totalElements": 237,
+    "images": 7,
     "animations": 0,
     "useEffects": 0
   },
