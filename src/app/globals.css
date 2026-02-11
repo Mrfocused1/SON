@@ -36,7 +36,7 @@ body {
 
 /* Prevent horizontal overflow on mobile */
 @media (max-width: 768px) {
-  html, body {
+  body {
     overflow-x: hidden;
     overscroll-behavior-x: none;
   }
