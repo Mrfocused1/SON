@@ -7,7 +7,7 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { VideoModal } from "@/components/VideoModal";
 import { Preloader } from "@/components/Preloader";
 import { PageTransition } from "@/components/PageTransition";
-import { ScrollAnimations } from "@/components/ScrollAnimations";
+import { ScrollRevealAnimations } from "@/components/ScrollRevealAnimations";
 import { VideoModalProvider } from "@/context/VideoModalContext";
 import { PreloaderProvider } from "@/context/PreloaderContext";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -251,7 +251,7 @@ export default function RootLayout({
               <VideoModalProvider>
                 <Preloader />
                 <PageTransition />
-                {/* <ScrollAnimations /> */}
+                <ScrollRevealAnimations />
                 <CustomCursor />
                 <VideoModal />
                 <Navbar />
