@@ -64,18 +64,20 @@ export default function JoinPage() {
   const [applicationSubmitting, setApplicationSubmitting] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<"idle" | "success" | "error">("idle");
 
-  // Load join page content and roles from Supabase
+  // Load join page content and roles from Supabase - OPTIMIZED: Parallel fetching
   useEffect(() => {
     async function loadJoinData() {
       if (!supabase) return;
 
       try {
-        // Load join_content for page titles
-        const { data: contentData } = await supabase
-          .from("join_content")
-          .select("*")
-          .single();
+        // Parallel fetch for better performance
+        const [contentResult, rolesResult] = await Promise.all([
+          supabase.from("join_content").select("*").single(),
+          supabase.from("roles").select("*").order("order", { ascending: true }),
+        ]);
 
+        // Process join_content
+        const contentData = contentResult.data;
         if (contentData) {
           setPageContent({
             title: contentData.title || "Join The",
@@ -87,12 +89,8 @@ export default function JoinPage() {
           });
         }
 
-        // Load roles ordered by order field
-        const { data: rolesData } = await supabase
-          .from("roles")
-          .select("*")
-          .order("order", { ascending: true });
-
+        // Process roles
+        const rolesData = rolesResult.data;
         if (rolesData && rolesData.length > 0) {
           setRoles(
             rolesData.map((role: any, index: number) => ({

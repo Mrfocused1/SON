@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-02-11T18:12:58.079Z",
+  "metrics": {
+    "scrollEvents": 78,
+    "frameDrops": 4,
+    "avgScrollDelay": 43.86923076919256,
+    "maxScrollDelay": 923.3000000119209,
+    "url": "https://son-ivory.vercel.app/"
+  },
+  "domStats": {
+    "totalElements": 266,
+    "images": 13,
+    "animations": 0,
+    "useEffects": 0
+  },
+  "conclusion": "Performance acceptable"
+}

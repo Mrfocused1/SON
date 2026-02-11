@@ -52,18 +52,20 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
 
-  // Load contact page content and social links from Supabase
+  // Load contact page content and social links from Supabase - OPTIMIZED: Parallel fetching
   useEffect(() => {
     async function loadContactData() {
       if (!supabase) return;
 
       try {
-        // Load contact_content for page titles
-        const { data: contentData } = await supabase
-          .from("contact_content")
-          .select("*")
-          .single();
+        // Parallel fetch for better performance
+        const [contentResult, socialResult] = await Promise.all([
+          supabase.from("contact_content").select("*").single(),
+          supabase.from("social_links").select("*").order("order", { ascending: true }),
+        ]);
 
+        // Process contact_content
+        const contentData = contentResult.data;
         if (contentData) {
           setPageContent({
             formTitle: contentData.form_title || "Hit Us Up",
@@ -74,12 +76,8 @@ export default function ContactPage() {
           });
         }
 
-        // Load social links ordered by order field
-        const { data: socialData } = await supabase
-          .from("social_links")
-          .select("*")
-          .order("order", { ascending: true });
-
+        // Process social links
+        const socialData = socialResult.data;
         if (socialData && socialData.length > 0) {
           setSocialLinks(
             socialData.map((social: any) => ({

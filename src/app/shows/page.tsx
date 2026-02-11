@@ -72,12 +72,14 @@ export default function ShowsPage() {
       if (!supabase) return;
 
       try {
-        // Load shows_content for page titles
-        const { data: contentData } = await supabase
-          .from("shows_content")
-          .select("*")
-          .single();
+        // Parallel fetch for better performance
+        const [contentResult, showsResult] = await Promise.all([
+          supabase.from("shows_content").select("*").single(),
+          supabase.from("shows").select("*").order("order", { ascending: true }),
+        ]);
 
+        // Process shows_content
+        const contentData = contentResult.data;
         if (contentData) {
           setPageContent({
             title: contentData.title || "Our Shows",
@@ -85,12 +87,8 @@ export default function ShowsPage() {
           });
         }
 
-        // Load shows (videos) ordered by order field
-        const { data: showsData } = await supabase
-          .from("shows")
-          .select("*")
-          .order("order", { ascending: true });
-
+        // Process shows (videos)
+        const showsData = showsResult.data;
         if (showsData && showsData.length > 0) {
           setVideos(
             showsData.map((show: any) => ({

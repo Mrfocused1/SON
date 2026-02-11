@@ -63,18 +63,21 @@ export default function Home() {
     linkUrl?: string | null;
   }[]>([]);
 
-  // Load content from Supabase
+  // Load content from Supabase - OPTIMIZED: Parallel fetching
   useEffect(() => {
     async function loadContent() {
       if (!supabase) return;
 
       try {
-        // Load home_content
-        const { data: homeData } = await supabase
-          .from("home_content")
-          .select("*")
-          .single();
+        // Fetch all data in parallel instead of sequential
+        const [homeResult, capsResult, galleryResult] = await Promise.all([
+          supabase.from("home_content").select("*").single(),
+          supabase.from("capabilities").select("*").order("order", { ascending: true }),
+          supabase.from("gallery_images").select("*").order("order", { ascending: true }),
+        ]);
 
+        // Process home_content
+        const homeData = homeResult.data;
         if (homeData) {
           setHomeContent({
             heroTitle: homeData.hero_title || "",
@@ -101,12 +104,8 @@ export default function Home() {
           });
         }
 
-        // Load capabilities
-        const { data: capsData } = await supabase
-          .from("capabilities")
-          .select("*")
-          .order("order", { ascending: true });
-
+        // Process capabilities
+        const capsData = capsResult.data;
         if (capsData && capsData.length > 0) {
           setCapabilities(capsData.map((cap: any) => ({
             title: cap.title,
@@ -115,12 +114,8 @@ export default function Home() {
           })));
         }
 
-        // Load gallery images
-        const { data: galleryData } = await supabase
-          .from("gallery_images")
-          .select("*")
-          .order("order", { ascending: true });
-
+        // Process gallery images
+        const galleryData = galleryResult.data;
         if (galleryData && galleryData.length > 0) {
           setGalleryImages(galleryData.map((img: any) => ({
             id: img.id,
