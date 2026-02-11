@@ -30,7 +30,7 @@ export function Footer() {
 
         if (socialData && socialData.length > 0) {
           setSocialLinks(
-            socialData.map((social) => ({
+            socialData.map((social: any) => ({
               href: social.href,
               label: social.label,
             }))
@@ -57,7 +57,7 @@ export function Footer() {
           <span className="font-display text-3xl uppercase">SON NETWORKS</span>
         </div>
         <div className="flex gap-8 font-display text-xl uppercase tracking-widest text-gray-400">
-          {socialLinks.map((link) => (
+          {socialLinks.map((link: any) => (
             <Link
               key={link.label}
               href={link.href}

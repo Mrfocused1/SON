@@ -44,7 +44,7 @@ function useToast() {
 function ToastContainer({ toasts, removeToast }: { toasts: Toast[]; removeToast: (id: number) => void }) {
   return (
     <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none">
-      {toasts.map((toast) => (
+      {toasts.map((toast: any) => (
         <div
           key={toast.id}
           className={`pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl border-2 animate-slide-down min-w-[300px] max-w-[90vw] ${
@@ -197,7 +197,7 @@ export default function AdminPage() {
           </button>
 
           <nav className="py-4">
-            {sidebarItems.map((item) => {
+            {sidebarItems.map((item: any) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
               return (

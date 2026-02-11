@@ -108,7 +108,7 @@ export default function Home() {
           .order("order", { ascending: true });
 
         if (capsData && capsData.length > 0) {
-          setCapabilities(capsData.map(cap => ({
+          setCapabilities(capsData.map((cap: any) => ({
             title: cap.title,
             description: cap.description,
             icon: cap.icon || "Sparkles",
@@ -122,7 +122,7 @@ export default function Home() {
           .order("order", { ascending: true });
 
         if (galleryData && galleryData.length > 0) {
-          setGalleryImages(galleryData.map(img => ({
+          setGalleryImages(galleryData.map((img: any) => ({
             id: img.id,
             imageUrl: img.image_url,
             linkUrl: img.link_url || null,
@@ -223,7 +223,7 @@ export default function Home() {
       {galleryImages.length > 0 && (
         <section className="bg-[var(--cream)] border-b-2 border-[var(--ink)]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-            {galleryImages.map((image) => {
+            {galleryImages.map((image: any) => {
               const content = (
                 <>
                   <Image

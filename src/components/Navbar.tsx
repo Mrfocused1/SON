@@ -62,7 +62,7 @@ export function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex flex-1 justify-end items-stretch">
-          {navLinks.map((link) => {
+          {navLinks.map((link: any) => {
             const isActive = pathname === link.href;
             const isContact = link.href === "/contact";
 
@@ -104,7 +104,7 @@ export function Navbar() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-[var(--ink)] text-[var(--cream)]">
-          {navLinks.map((link) => (
+          {navLinks.map((link: any) => (
             <TransitionLink
               key={link.href}
               href={link.href}

@@ -82,7 +82,7 @@ export default function ContactPage() {
 
         if (socialData && socialData.length > 0) {
           setSocialLinks(
-            socialData.map((social) => ({
+            socialData.map((social: any) => ({
               href: social.href,
               label: social.label,
               icon: iconMap[social.icon] || LinkIcon,
@@ -198,7 +198,7 @@ export default function ContactPage() {
               {pageContent.infoTitle || t.contact.infoTitle}<br />{pageContent.infoTitleAccent || t.contact.infoTitleAccent}
             </h2>
             <ul className="space-y-4 font-display text-3xl uppercase animate-stagger">
-              {socialLinks.map((link) => {
+              {socialLinks.map((link: any) => {
                 const Icon = link.icon;
                 return (
                   <li key={link.label}>

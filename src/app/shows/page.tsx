@@ -93,7 +93,7 @@ export default function ShowsPage() {
 
         if (showsData && showsData.length > 0) {
           setVideos(
-            showsData.map((show) => ({
+            showsData.map((show: any) => ({
               videoId: show.video_id,
               thumbnail: show.thumbnail,
               thumbnailMobile: show.thumbnail_mobile || null,

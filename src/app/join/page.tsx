@@ -95,7 +95,7 @@ export default function JoinPage() {
 
         if (rolesData && rolesData.length > 0) {
           setRoles(
-            rolesData.map((role, index) => ({
+            rolesData.map((role: any, index: number) => ({
               title: role.title,
               titleFr: role.title_fr,
               type: role.type,
@@ -188,7 +188,7 @@ export default function JoinPage() {
         </p>
 
         <div className="space-y-8 flex-1 animate-stagger">
-          {roles.map((role) => {
+          {roles.map((role: any) => {
             const displayTitle = language === 'fr' && role.titleFr ? role.titleFr : role.title;
             const displayType = language === 'fr' && role.typeFr ? role.typeFr : role.type;
             const displayDescription = language === 'fr' && role.descriptionFr ? role.descriptionFr : role.description;

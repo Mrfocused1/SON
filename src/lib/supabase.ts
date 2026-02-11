@@ -1,74 +1,165 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+// Backward compatibility wrapper for Vercel Postgres/Blob
+// This file maintains the same API as the old Supabase client
+// but uses Vercel Postgres and Vercel Blob under the hood
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+import { sql } from '@vercel/postgres';
+import {
+  getContent,
+  updateContent,
+  createContent,
+  deleteContent,
+  uploadImage as uploadImageToBlob,
+  isDatabaseConfigured,
+} from './db';
 
-// Create supabase client only if URL is provided
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const supabase: SupabaseClient<any, "public", any> | null =
-  supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
+// Supabase-like client for backward compatibility
+class PostgresClient {
+  from(table: string) {
+    return {
+      select: (columns = '*') => {
+        const baseQuery = () => sql.query(`SELECT ${columns} FROM ${table} ORDER BY created_at DESC`);
 
-// Check if Supabase is configured
-export const isSupabaseConfigured = (): boolean => {
-  return supabase !== null;
-};
+        // Create a proper thenable/Promise-like object
+        const query: any = {
+          single: () => {
+            return sql.query(`SELECT ${columns} FROM ${table} LIMIT 1`)
+              .then(({ rows }) => ({ data: rows[0] || null, error: null }))
+              .catch((error) => ({ data: null, error }));
+          },
+          order: (column: string, options?: { ascending?: boolean }) => {
+            const direction = options?.ascending ? 'ASC' : 'DESC';
+            const quotedCol = column === 'order' ? `"order"` : column;
+            return sql.query(`SELECT ${columns} FROM ${table} ORDER BY ${quotedCol} ${direction}`)
+              .then(({ rows }) => ({ data: rows, error: null }))
+              .catch((error) => ({ data: null, error }));
+          },
+          then: (onfulfilled: any, onrejected: any) => {
+            return baseQuery()
+              .then(({ rows }) => onfulfilled({ data: rows, error: null }))
+              .catch((error) => onrejected ? onrejected(error) : ({ data: null, error }));
+          },
+          catch: (onrejected: any) => {
+            return baseQuery()
+              .then(({ rows }) => ({ data: rows, error: null }))
+              .catch((error) => onrejected(error));
+          }
+        };
 
-// Helper functions for content management
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getContent(table: string): Promise<any[]> {
-  if (!supabase) throw new Error("Supabase is not configured");
-  const { data, error } = await supabase.from(table).select("*");
-  if (error) throw error;
-  return data || [];
+        return query;
+      },
+
+      insert: async (data: any | any[]) => {
+        try {
+          const records = Array.isArray(data) ? data : [data];
+          const inserted = [];
+
+          for (const record of records) {
+            const columns = Object.keys(record);
+            const values = Object.values(record);
+            const quotedColumns = columns.map(col => col === 'order' ? `"order"` : col);
+            const placeholders = columns.map((_, idx) => `$${idx + 1}`);
+
+            const query = `
+              INSERT INTO ${table} (${quotedColumns.join(', ')})
+              VALUES (${placeholders.join(', ')})
+              RETURNING *
+            `;
+
+            const { rows } = await sql.query(query, values);
+            inserted.push(rows[0]);
+          }
+
+          return { data: inserted.length === 1 ? inserted[0] : inserted, error: null };
+        } catch (error) {
+          return { data: null, error };
+        }
+      },
+
+      update: (updates: Record<string, any>) => {
+        return {
+          eq: (column: string, value: any) => {
+            const columns = Object.keys(updates);
+            const values = Object.values(updates);
+            const setClause = columns
+              .map((col, idx) => {
+                const quotedCol = col === 'order' ? `"order"` : col;
+                return `${quotedCol} = $${idx + 1}`;
+              })
+              .join(', ');
+
+            const query = `
+              UPDATE ${table}
+              SET ${setClause}, updated_at = NOW()
+              WHERE ${column} = $${columns.length + 1}
+              RETURNING *
+            `;
+
+            // Return a chainable object that's also a Promise
+            const updatePromise: any = sql.query(query, [...values, value])
+              .then(({ rows }) => ({ data: rows[0], error: null }))
+              .catch((error) => ({ data: null, error }));
+
+            // Add select() for chaining
+            updatePromise.select = () => ({
+              single: () => updatePromise
+            });
+
+            return updatePromise;
+          }
+        };
+      },
+
+      delete: () => {
+        return {
+          neq: async (column: string, value: any) => {
+            try {
+              await sql.query(`DELETE FROM ${table} WHERE ${column} != $1`, [value]);
+              return { error: null };
+            } catch (error) {
+              return { error };
+            }
+          },
+          eq: async (column: string, value: any) => {
+            try {
+              await sql.query(`DELETE FROM ${table} WHERE ${column} = $1`, [value]);
+              return { error: null };
+            } catch (error) {
+              return { error };
+            }
+          }
+        };
+      },
+
+      order: (column: string, options?: { ascending?: boolean }) => {
+        const direction = options?.ascending ? 'ASC' : 'DESC';
+        const quotedCol = column === 'order' ? `"order"` : column;
+        return {
+          select: async (columns = '*') => {
+            try {
+              const { rows } = await sql.query(
+                `SELECT ${columns} FROM ${table} ORDER BY ${quotedCol} ${direction}`
+              );
+              return { data: rows, error: null };
+            } catch (error) {
+              return { data: null, error };
+            }
+          }
+        };
+      }
+    };
+  }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function updateContent(table: string, id: string, updates: Record<string, any>): Promise<any> {
-  if (!supabase) throw new Error("Supabase is not configured");
-  const { data, error } = await supabase
-    .from(table)
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}
+// Mock supabase client for backward compatibility
+export const supabase = isDatabaseConfigured() ? new PostgresClient() : null;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function createContent(table: string, content: Record<string, any>): Promise<any> {
-  if (!supabase) throw new Error("Supabase is not configured");
-  const { data, error } = await supabase
-    .from(table)
-    .insert(content)
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}
+// Check if database is configured
+export const isSupabaseConfigured = isDatabaseConfigured;
 
-export async function deleteContent(table: string, id: string): Promise<void> {
-  if (!supabase) throw new Error("Supabase is not configured");
-  const { error } = await supabase.from(table).delete().eq("id", id);
-  if (error) throw error;
-}
+// Re-export all functions with the same API
+export { getContent, updateContent, createContent, deleteContent };
 
-// Upload image to Supabase Storage
-export async function uploadImage(file: File, bucket: string = "images") {
-  if (!supabase) throw new Error("Supabase is not configured. Please add your Supabase credentials.");
-
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${Date.now()}.${fileExt}`;
-  const filePath = `${fileName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(bucket)
-    .upload(filePath, file);
-
-  if (uploadError) throw uploadError;
-
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return data.publicUrl;
+// Upload image wrapper (bucket parameter ignored, kept for compatibility)
+export async function uploadImage(file: File, _bucket?: string): Promise<string> {
+  return uploadImageToBlob(file);
 }
